@@ -50,10 +50,6 @@ class Router
       Application::$app->controller = new $callback[0]();
       //インスタンス化したものを入れる
       $callback[0] = Application::$app->controller;
-      //httpメソッド
-      if(property_exists($callback[0],'method')){
-        $callback[0]->method =  $method;
-      }
     }
 
     //callback[0]：オブジェクト、callback[1]：メソッド

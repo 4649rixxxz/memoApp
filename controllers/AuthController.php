@@ -3,26 +3,56 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\core\Validation;
 
 class AuthController extends Controller
 {
 
-  public $method;
+  public $model;
 
   public function login()
   {
     return $this->view('auth/login');
   }
 
-  public function register()
+  public function register($request)
   {
-    if($this->method === 'get'){
+    if($request->isGet()){
       return $this->view('auth/register');
     }
 
-    if($this->method === 'post'){
-      var_dump($_POST);
-      exit;
+    if($request->isPost())
+    {
+      $data = $request->postData;
+
+      //バリデーションルール
+      $rules = [
+        'email' => ['required','email'],
+        'password' => ['required'],
+        'confirmPassword' => [
+          'required',
+          ['match' => 'password']
+        ]
+      ];
+      
+      //バリデーション
+      $validation = new Validation($data,$rules);
+      //日本語化
+      $validation->lists = [
+        'email' => 'メールアドレス',
+        'password' => 'パスワード',
+        'confirmPassword' => '確認用パスワード'
+      ];
+
+      $validation->validate();
+
+      //エラーがあるかどうか
+      if($validation->isError()){
+        //DB処理
+      }else{
+        //エラー処理
+      }
+
     }
   }
 }
