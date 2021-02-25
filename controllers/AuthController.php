@@ -4,55 +4,81 @@ namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
+use app\models\Auth;
+use app\core\Session;
 
 class AuthController extends Controller
 {
 
   public $model;
 
-  public function login()
+  public function __construct()
+  {
+    $this->model = new Auth;
+  }
+
+  //ログイン画面の表示
+  public function index()
   {
     return $this->view('auth/login');
   }
 
-  public function register($request)
+  //新規登録画面の表示
+  public function register()
+  { 
+    return $this->view('auth/register'); 
+  }
+
+
+  //ユーザーの新規登録処理
+  public function store($request)
   {
-    if($request->isGet()){
-      return $this->view('auth/register');
-    }
+    $data = $request->postData;
 
-    if($request->isPost())
-    {
-      $data = $request->postData;
+    //バリデーションルール
+    $rules = [
+      'email' => ['required','email',
+      ['unique' => [$this->model::TABLE,'email']]
+    ],
+      'password' => ['required'],
+      'confirmPassword' => [
+        'required',
+        ['match' => 'password']
+      ]
+    ];
+    
+    //インスタンス化
+    $validation = new Validation($data,$rules);
 
-      //バリデーションルール
-      $rules = [
-        'email' => ['required','email'],
-        'password' => ['required'],
-        'confirmPassword' => [
-          'required',
-          ['match' => 'password']
-        ]
+    //バリデーション
+    $validation->validate();
+
+    //エラーがあるかどうか
+    if($validation->isError()){
+      //ハッシュ化するパスワード
+      $keyLists = [
+        'password',
+        'confirmPassword'
       ];
-      
-      //バリデーション
-      $validation = new Validation($data,$rules);
-      //日本語化
-      $validation->lists = [
-        'email' => 'メールアドレス',
-        'password' => 'パスワード',
-        'confirmPassword' => '確認用パスワード'
-      ];
-
-      $validation->validate();
-
-      //エラーがあるかどうか
-      if($validation->isError()){
-        //DB処理
+      //パスワードのハッシュ化
+      $data = $this->createHashedPassword($data,$keyLists);
+      //DB処理
+      if($this->model->insert($data)){
+        //フラッシュメッセージの追加
+        Session::setFlashMessage('success','新規登録が完了しました。以下の項目を入力してログインしてください。');
+        //完了画面へリダイレクト
+        redirect('login');
       }else{
-        //エラー処理
+        die('しばらく時間を空けてから再度お試しください');
       }
-
+    }else{
+      //エラー処理
+      //エラーメッセージの取得
+      $_SESSION['errorMessages'] = $validation->getErrorMessages();
+      //リダイレクト
+      redirect('register');
     }
   }
+
+  
 }

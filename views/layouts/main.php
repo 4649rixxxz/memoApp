@@ -9,14 +9,14 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="<?php echo URLROOT; ?>"><?php echo APPNAME; ?></a>
+      <a class="navbar-brand" href="<?php getUrlRoot(); ?>"><?php echo APPNAME; ?></a>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="<?php echo URLROOT; ?>login">Login</a>
+            <a class="nav-link" aria-current="page" href="<?php getUrlRoot('login'); ?>">Login</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo URLROOT; ?>register">Register</a>
+            <a class="nav-link" href="<?php getUrlRoot('register'); ?>">Register</a>
           </li>
         </ul>
       </div>
