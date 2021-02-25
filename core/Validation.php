@@ -2,18 +2,21 @@
 
 namespace app\core;
 
+use app\core\Model;
 
 class Validation
 {
+  public $model;
   public $data;
   public $rules;
-  public $lists = [];
+  public $lists = ATTR_JA;
   public $errorMessages = [];
 
   public function __construct($data,$rules)
   {
     $this->data = $data;
     $this->rules = $rules;
+    $this->model = new Model;
   }
 
   public function validate()
@@ -21,6 +24,7 @@ class Validation
     $data = $this->data;
     $rules = $this->rules;
 
+    //ルールの確認
     foreach($rules as $key => $ruleArray)
     {
       if(array_key_exists($key,$data)){
@@ -49,6 +53,18 @@ class Validation
             //同じ値かどうか
             if($data[$key] !== $data[$targetKey]){
               $this->setMatchMessage($key,$targetKey);
+            }
+          }
+          //唯一の値か(unique)
+          if(is_array($rule) && array_key_exists('unique',$rule)){
+            //テーブルの名前
+            $table = $rule['unique'][0];
+            //カラム名
+            $column = $rule['unique'][1];
+            //ユニークかどうか
+            if($this->model->isUniqueValue($table,$column,$data[$key]) === false){
+              //メッセージの格納
+              $this->setUniqueMessage($key);
             }
           }
         }
@@ -88,6 +104,11 @@ class Validation
     }else{
       return false;
     }
+  }
+
+  public function setUniqueMessage($key)
+  {
+    $this->errorMessages[$key][] = "この".$this->lists[$key]."はすでに使用されています";
   }
 
 }

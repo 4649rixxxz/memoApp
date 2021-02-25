@@ -2,6 +2,8 @@
 
 namespace app\core;
 
+use app\core\Session;
+
 
 class Request
 {
@@ -11,7 +13,10 @@ class Request
   public function __construct()
   {
     if($this->isPost()){
-      $this->postData = $this->validateData($_POST);
+      //エスケープ処理
+      $this->postData = $this->getEscapedData($_POST);
+      //セッション開始
+      Session::start($this->postData,$this->getHttpMethod());
     }
   }
 
@@ -38,7 +43,7 @@ class Request
     return $this->getHttpMethod() === 'post';
   }
 
-  public function validateData($array)
+  public function getEscapedData($array)
   {
     $data = [];
     foreach($array as $key => $value){

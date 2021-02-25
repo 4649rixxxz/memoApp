@@ -33,11 +33,17 @@ class Router
 
   public function resolve()
   {
+    //パスの取得
     $path = $this->request->getPath();
     //httpメソッドの取得
     $method = $this->request->getHttpMethod();
     //URLに対応するコールバック関数の格納
     $callback = $this->routes[$method][$path] ?? false;
+
+    //post送信するページのみセッション開始
+    if($this->request->isGet() && in_array($path,Session::GET_METHOD_LIST)){
+      Session::start();
+    }
 
     //存在しないリクエスト
     if($callback === false){
@@ -45,6 +51,7 @@ class Router
       die('Not Found');
     }
 
+    //第一引数にクラス、第二引数にメソッド
     if(is_array($callback)){
       //インスタンス化
       Application::$app->controller = new $callback[0]();
