@@ -9,14 +9,17 @@ class Request
 {
 
   public $postData;
+  public $session;
 
   public function __construct()
   {
+    //セッション開始
+    $this->session = new Session();
     if($this->isPost()){
       //エスケープ処理
       $this->postData = $this->getEscapedData($_POST);
-      //セッション開始
-      Session::start($this->postData,$this->getHttpMethod());
+      // Session::start($this->postData,$this->getHttpMethod());
+      $this->session->post($this->postData);
     }
   }
 

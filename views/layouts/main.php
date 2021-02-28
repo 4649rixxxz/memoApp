@@ -12,12 +12,22 @@
       <a class="navbar-brand" href="<?php getUrlRoot(); ?>"><?php echo APPNAME; ?></a>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="<?php getUrlRoot('login'); ?>">Login</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="<?php getUrlRoot('register'); ?>">Register</a>
-          </li>
+          <?php if($_SESSION['user_id'] ?? false): ?>
+            <li class="nav-item">
+              <form action="<?php getUrlRoot('logout'); ?>" method="post">
+                {{ csrf_token }}
+                <input type="hidden" name="logout" value="logout">
+                <button type="submit">ログアウト</button>
+              </form>
+            </li>
+          <?php else: ?>
+            <li>
+              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('login'); ?>">ログイン</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="<?php getUrlRoot('register'); ?>">新規登録</a>
+            </li>
+          <?php endif; ?>
         </ul>
       </div>
     </div>

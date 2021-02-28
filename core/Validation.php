@@ -67,26 +67,25 @@ class Validation
               $this->setUniqueMessage($key);
             }
           }
+          if(is_array($rule) && array_key_exists('exists',$rule)){
+            //モデルの取得
+            $authModel = $rule['exists'];
+            if(!empty($data[$key]) && !empty($data['password'])){
+              //メールアドレスがレコードに存在するか
+              $user = $authModel->findUser($data[$key]);
+              if($user !== false){
+                //パスワードの認証
+                if(!password_verify($data['password'],$user['password'])){
+                  $this->setUnmatchedMessage('password');
+                }
+              }else{
+                $this->setUnmatchedMessage($key);
+              }
+            }
+          }
         }
       }
     }
-  }
-
-
-  public function setRequiredMessage($key)
-  {
-    $this->errorMessages[$key][] = $this->lists[$key]."は必須項目です";
-  }
-
-  public function setEmailMessage($key)
-  {
-    $this->errorMessages[$key][] = $this->lists[$key]."が不正なEメールアドレスです";
-  }
-
-
-  public function setMatchMessage($key,$targetKey)
-  {
-    $this->errorMessages[$key][] = $this->lists[$key]."は".$this->lists[$targetKey]."と同じ値でなければなりません";
   }
 
 
@@ -105,10 +104,34 @@ class Validation
       return false;
     }
   }
-
-  public function setUniqueMessage($key)
+  
+  protected function setRequiredMessage($key)
   {
-    $this->errorMessages[$key][] = "この".$this->lists[$key]."はすでに使用されています";
+    $this->errorMessages[$key][] = $this->lists[$key]."は必須項目です。";
   }
+
+  protected function setEmailMessage($key)
+  {
+    $this->errorMessages[$key][] = $this->lists[$key]."が不正なフォーマットのメールアドレスです。";
+  }
+
+
+  protected function setMatchMessage($key,$targetKey)
+  {
+    $this->errorMessages[$key][] = $this->lists[$key]."は".$this->lists[$targetKey]."と同じ値でなければなりません。";
+  }
+
+
+
+  protected function setUniqueMessage($key)
+  {
+    $this->errorMessages[$key][] = "この".$this->lists[$key]."はすでに使用されています。";
+  }
+
+  protected function setUnmatchedMessage($key)
+  {
+    $this->errorMessages[$key][] = $this->lists[$key]."が間違っています。";
+  }
+
 
 }

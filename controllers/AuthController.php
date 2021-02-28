@@ -55,17 +55,12 @@ class AuthController extends Controller
 
     //エラーがあるかどうか
     if($validation->isError()){
-      //ハッシュ化するパスワード
-      $keyLists = [
-        'password',
-        'confirmPassword'
-      ];
       //パスワードのハッシュ化
-      $data = $this->createHashedPassword($data,$keyLists);
+      $data['password'] = $this->createHashedPassword($data['password']);
       //DB処理
       if($this->model->insert($data)){
         //フラッシュメッセージの追加
-        Session::setFlashMessage('success','新規登録が完了しました。以下の項目を入力してログインしてください。');
+        Session::setFlashMessage('success','新規登録が完了しました。');
         //完了画面へリダイレクト
         redirect('login');
       }else{
@@ -77,6 +72,52 @@ class AuthController extends Controller
       $_SESSION['errorMessages'] = $validation->getErrorMessages();
       //リダイレクト
       redirect('register');
+    }
+  }
+
+  //ログイン
+  public function login($request)
+  {
+    $data = $request->postData;
+
+    //バリデーションルール
+    $rules = [
+      'email' => ['required','email',['exists' => $this->model]
+      ],
+      'password' => ['required'],
+    ];
+    
+    //インスタンス化
+    $validation = new Validation($data,$rules);
+
+    //バリデーション
+    $validation->validate();
+
+    if($validation->isError()){
+      //ユーザの取得
+      $user = $this->model->findUser($data['email']);
+
+      //ログイン成功
+      $_SESSION['user_id'] = $user['id'];
+      //ユーザのホームページにリダイレクト
+      redirect('home');
+    }else{
+       //エラー処理
+      //エラーメッセージの取得
+      $_SESSION['errorMessages'] = $validation->getErrorMessages();
+      //リダイレクト
+      redirect('login');
+    }
+  }
+
+
+  public function logout($request)
+  {
+    if($request->postData['logout'] === 'logout'){
+      //セッションの放棄
+      Session::destroy();
+      //リダイレクト
+      redirect();
     }
   }
 

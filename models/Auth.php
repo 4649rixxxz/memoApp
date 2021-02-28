@@ -12,17 +12,37 @@ class Auth extends Model
   public function insert($data)
   {
     $this->prepare(
-      'INSERT INTO users (email,password,confirm_password) VALUES(:email,:password,:confirm_password)');
+      'INSERT INTO users (email,password) VALUES(:email,:password)');
     
     //バインディング
     $this->bind(':email',$data['email']);
     $this->bind(':password',$data['password']);
-    $this->bind(':confirm_password',$data['confirmPassword']);
 
     if($this->execute()){
       return true;
     }else {
       return false;
     }
+  }
+
+  /*
+    @return 
+  */
+
+  public function findUser($email)
+  {
+    $sql = "SELECT * FROM users WHERE email = :email";
+    
+    $this->prepare($sql);
+    $this->bind(':email',$email);
+
+    if($this->execute()){
+      $user = $this->fetch(\PDO::FETCH_ASSOC);
+
+      return $user;
+    }else{
+      return false;
+    }
+    
   }
 }

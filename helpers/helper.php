@@ -5,11 +5,12 @@ function getUrlRoot($goal = '')
   echo URLROOT.$goal;
 }
 
-function redirect($path)
+function redirect($path = '')
 {
   //遷移先
   $destination = 'Location:'.URLROOT.$path;
   header($destination);
+  exit;
 }
 
 //エラー時の値を取得
@@ -36,7 +37,7 @@ function getFirstErrMessage($key)
 {
   if(isErrMessage() && isset($_SESSION['errorMessages'][$key][0])){
     echo "<div class='alert alert-danger mt-3' role='alert'>{$_SESSION['errorMessages'][$key][0]}</div>";
-    unset($_SESSION['errorMessages'][$key][0]);
+    unset($_SESSION['errorMessages'][$key]);
   }
 }
 
@@ -55,8 +56,5 @@ function getFlashMessage($key)
 {
   if(isFlashMessage() && isset($_SESSION['flash'][$key])){
     echo "<div class='alert alert-success' role='alert'>{$_SESSION['flash'][$key]}</div>";
-    // unset($_SESSION['flash'][$key]);
-    $_SESSION = [];
-    session_destroy();
   }
 }

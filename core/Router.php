@@ -3,6 +3,7 @@
 
 namespace app\core;
 
+use app\middlewares\AuthMiddleware;
 
 class Router
 {
@@ -40,19 +41,17 @@ class Router
     //URLに対応するコールバック関数の格納
     $callback = $this->routes[$method][$path] ?? false;
 
-    //post送信するページのみセッション開始
-    if($this->request->isGet() && in_array($path,Session::GET_METHOD_LIST)){
-      Session::start();
-    }
-
     //存在しないリクエスト
     if($callback === false){
       $this->response->setStatusCode(404);
       die('Not Found');
     }
-
+    
     //第一引数にクラス、第二引数にメソッド
     if(is_array($callback)){
+      //ミドルウェアの適用
+      $middleware = new AuthMiddleware;
+      $middleware->guard($callback[0]);
       //インスタンス化
       Application::$app->controller = new $callback[0]();
       //インスタンス化したものを入れる
