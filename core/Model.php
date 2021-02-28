@@ -71,9 +71,9 @@ class Model
     $this->stmt = $this->dbh->query($sql);
   }
 
-  public function fetch()
+  public function fetch($mode)
   {
-    $result = $this->stmt->fetch(\PDO::FETCH_ASSOC);
+    $result = $this->stmt->fetch($mode);
 
     return $result;
   }
@@ -81,18 +81,26 @@ class Model
 
   public function isUniqueValue($table,$column,$value)
   {
-    $sql = "SELECT * FROM {$table} WHERE {$column} = '{$value}'";
+    $sql = "SELECT * FROM {$table} WHERE {$column} = :value";
     
-    $this->query($sql);
-    $result = $this->fetch();
+    $this->prepare($sql);
+    $this->bind(':value',$value);
 
-    if($result !== false){
-      //レコードがある場合
-      return false;
+    if($this->execute()){
+
+      $result = $this->fetch(\PDO::FETCH_ASSOC);
+
+      if($result !== false){
+        //レコードがある場合
+        return false;
+      }else{
+        //レコードがない場合
+        return true;
+      }
     }else{
-      //レコードがない場合
-      return true;
+      return false;
     }
+
    
   }
 

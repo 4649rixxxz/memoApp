@@ -16,14 +16,6 @@ abstract class Controller
     //ビューを取得
     $this->viewContent = $this->getView($path,$data);
 
-    $token = '{{ csrf_token }}';
-    //ワンタイムトークンが設置されているか確認
-    if(strpos($this->viewContent,$token) !== false){
-      //ワンタイムトークンタグの設置
-      $result = "<input type='hidden' name='token' value='{$_SESSION['token']}'>";
-      $this->viewContent = str_replace($token,$result,$this->viewContent);
-    }
-
     //ファイル名を取得
     $fileName = $this->getFileName();
 
@@ -41,7 +33,19 @@ abstract class Controller
     }
 
 
-    return str_replace('{{ content }}',$this->viewContent,$this->layoutContent);
+    $view = str_replace('{{ content }}',$this->viewContent,$this->layoutContent);
+
+    //ワンタイムトークンが設置されているか確認
+    $token = '{{ csrf_token }}';
+    if(strpos($view,$token) !== false){
+      //ワンタイムトークンタグの設置
+      $result = "<input type='hidden' name='token' value='{$_SESSION['token']}'>";
+      $view = str_replace($token,$result,$view);
+
+      return $view;
+    }
+
+    return $view;
 
   }
 
@@ -84,16 +88,12 @@ abstract class Controller
 
 
   //パスワードのハッシュ化
-  public function createHashedPassword($data,$keyLists)
+  public function createHashedPassword($value)
   {
-    foreach($keyLists as $key){
-      //キーが存在するか
-      if(array_key_exists($key,$data)){
-        $data[$key] = password_hash($data[$key],PASSWORD_DEFAULT);
-      }
-    }
+    
+    $value = password_hash($value,PASSWORD_DEFAULT);
 
-    return $data;
+    return $value;
   }
 
 }

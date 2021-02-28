@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container mt-5">
   {{ content }}
 </div>
 <!-- Optional JavaScript; choose one of the two! -->

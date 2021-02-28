@@ -5,44 +5,63 @@ namespace app\core;
 
 class Session
 {
+
+  public function __construct()
+  {
+    session_start();
+    //ワンタイムトークンの作成
+    $this->createToken();
+  }
+
   private const ExistingKeys = [
     'token'
   ];
 
-  const GET_METHOD_LIST = [
-    '/register',
-    '/login'
-  ];
-
-  public static function start($data = [],$method = '')
+  
+  public function set($data)
   {
-    //セッション開始
-    session_start();
-    //データの格納
-    if(count($data) > 0){
+    if(is_array($data)){
       foreach($data as $key => $value){
-        //既存のキーはスキップ
+        //予約キーはスキップ
         if(!array_key_exists($key,self::ExistingKeys)){
           $_SESSION[$key] = $value;
         }
       }
     }
-    //ワンタイムトークンの作成
-    $_SESSION['token'] = uniqid(bin2hex(random_bytes(1)));
-    //postの場合
-    if($method === 'post'){
-      //再発行
-      session_regenerate_id();
-      //ワンタイムトークンの検索
-      if(!array_key_exists('token',$data) || $data['token'] !== $_SESSION['token']){
-        die('不正なリクエストです');
-      }
+  }
 
+  public function post($data)
+  {
+    //再発行
+    session_regenerate_id();
+    //値のセット
+    $this->set($data);
+    //ワンタイムトークンの検索
+    if(!array_key_exists('token',$data) || $data['token'] !== $_SESSION['token']){
+      //「token」キーが存在しない場合もしくはトークンが一致しない場合、エラー表示
+      die('不正なリクエストです');
+    }elseif($data['token'] === $_SESSION['token']){
+      //値のリセット
+      unset($_SESSION['token']);
+    }
+  }
+
+  public function createToken()
+  {
+    //ワンタイムトークンの作成
+    if(empty($_SESSION['token'])){
+      $_SESSION['token'] = uniqid(bin2hex(random_bytes(1)));
     }
   }
 
   public static function setFlashMessage($key,$value)
   {
     $_SESSION['flash'][$key] = $value;
+  }
+
+  public static function destroy()
+  {
+    $_SESSION = [];
+    session_destroy();
   }
 }
