@@ -8,6 +8,9 @@ abstract class Controller
   const PATH = '../views/';
   const LAYOUTDIR = 'layouts';
 
+  //モデル
+  public $model;
+  //ビュー
   public $layoutContent;
   public $viewContent;
 

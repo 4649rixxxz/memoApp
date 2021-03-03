@@ -10,14 +10,14 @@ class Router
   public $request;
   public $response;
   public $routes;
-
+  
   public function __construct($request,$response)
   {
     //Requestインスタンスを格納
     $this->request = $request;
     //Responseインスタンスを格納
     $this->response = $response;
-
+    
   }
 
   //GETメソッドに対応するコールバック関数
@@ -54,12 +54,32 @@ class Router
       $middleware->guard($callback[0]);
       //インスタンス化
       Application::$app->controller = new $callback[0]();
+      //モデルのセット
+      $model = $this->getModelClass($callback[0]);
+      if(class_exists($model)){
+        Application::$app->controller->model = new $model;
+      }
       //インスタンス化したものを入れる
       $callback[0] = Application::$app->controller;
     }
 
     //callback[0]：オブジェクト、callback[1]：メソッド
     return call_user_func($callback,$this->request);
+  }
+
+  //コントローラのデフォルトのモデルクラスを取得する
+  //「UserController」の場合「User」モデルとなる
+  public function getModelClass($controller)
+  {
+    $controllerNamespace = "app\\controllers\\";
+    //先頭から削除
+    $controller = str_replace($controllerNamespace,"",$controller);
+    //末尾のControllerを削除
+    $modelClass = str_replace('Controller',"",$controller);
+    //名前空間を追加
+    $modelClass = "app\\models\\".$modelClass;
+
+    return $modelClass;
   }
 
 

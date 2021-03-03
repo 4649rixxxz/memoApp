@@ -1,2 +1,3 @@
 @extends(main)
-<h1><?php echo "ここはホーム画面です"; ?></h1>
+<?php getLogoutMessage(); ?>
+<h1><?php echo "ここはウェルカム画面です"; ?></h1>

@@ -20,6 +20,9 @@
                 <button type="submit">ログアウト</button>
               </form>
             </li>
+            <li>
+              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('user/show'); ?>">マイページ</a>
+            </li>
           <?php else: ?>
             <li>
               <a class="nav-link" aria-current="page" href="<?php getUrlRoot('login'); ?>">ログイン</a>

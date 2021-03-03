@@ -57,48 +57,64 @@ class Validation
           }
           //唯一の値か(unique)
           if(is_array($rule) && array_key_exists('unique',$rule)){
-            //テーブルの名前
-            $table = $rule['unique'][0];
+            //テーブル名とカラム名の取得
+            $info = explode(":",$rule['unique'][0]);
+            //テーブル名
+            $table = $info[0];
             //カラム名
-            $column = $rule['unique'][1];
+            $column = $info[1];
             //ユニークかどうか
             if($this->model->isUniqueValue($table,$column,$data[$key]) === false){
               //メッセージの格納
               $this->setUniqueMessage($key);
             }
           }
-          if(is_array($rule) && array_key_exists('exists',$rule)){
+          if($key === 'email' && is_array($rule) && array_key_exists('exists',$rule)){
             //モデルの取得
             $authModel = $rule['exists'];
-            if(!empty($data[$key]) && !empty($data['password'])){
+            if(!empty($data['email']) && !empty($data['password'])){
               //メールアドレスがレコードに存在するか
-              $user = $authModel->findUser($data[$key]);
+              $user = $authModel->findUser($data['email']);
               if($user !== false){
                 //パスワードの認証
                 if(!password_verify($data['password'],$user['password'])){
                   $this->setUnmatchedMessage('password');
                 }
               }else{
-                $this->setUnmatchedMessage($key);
+                $this->setUnmatchedMessage('email');
               }
             }
           }
+          if($key === 'email' && is_array($rule) && array_key_exists('update_unique',$rule)){
+             //[0]テーブル名と[1]カラム名を格納
+             $info = explode(':',$rule['update_unique'][0]);
+             //現在のメールアドレス
+             $currentEmail = $rule['update_unique'][1];
+             //更新後のメールアドレス
+             $updateEmail = $rule['update_unique'][2];
+
+             if(!$this->model->isUpdateUniqueValue($info,$currentEmail,$updateEmail)){
+               $this->setUniqueMessage('email');
+             }
+          }
+
         }
       }
     }
   }
 
-
+  //エラーメッセージの取得
   public function getErrorMessages()
   {
     return $this->errorMessages;
   }
 
+  //エラーがあるかどうか
   public function isError()
   {
     $errors = $this->getErrorMessages();
 
-    if(count($errors) == 0){
+    if(count($errors) > 0){
       return true;
     }else{
       return false;

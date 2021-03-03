@@ -3,23 +3,29 @@
 namespace app\core;
 
 use app\core\Session;
-
+use app\models\User;
 
 class Request
 {
 
   public $postData;
   public $session;
+  public $user;
 
   public function __construct()
   {
     //セッション開始
     $this->session = new Session();
+    //Postメソッドの場合
     if($this->isPost()){
       //エスケープ処理
       $this->postData = $this->getEscapedData($_POST);
       // Session::start($this->postData,$this->getHttpMethod());
       $this->session->post($this->postData);
+    }
+    //ログインユーザオブジェクトの格納
+    if(isset($_SESSION['user_id'])){
+      $this->user = $this->getLoginUserModel();
     }
   }
 
@@ -59,6 +65,13 @@ class Request
     }
 
     return $data;
+  }
+
+  public function getLoginUserModel()
+  {
+    $user = new User;
+    return $user->getUserData($_SESSION['user_id']);
+
   }
 
 }
