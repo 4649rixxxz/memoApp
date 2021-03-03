@@ -4,18 +4,10 @@ namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
-use app\models\Auth;
 use app\core\Session;
 
 class AuthController extends Controller
 {
-
-  public $model;
-
-  public function __construct()
-  {
-    $this->model = new Auth;
-  }
 
   //ログイン画面の表示
   public function index()
@@ -37,9 +29,11 @@ class AuthController extends Controller
 
     //バリデーションルール
     $rules = [
-      'email' => ['required','email',
-      ['unique' => [$this->model::TABLE,'email']]
-    ],
+      'email' => [
+        'required',
+        'email',
+        ['unique' => ['users:email']]
+      ],
       'password' => ['required'],
       'confirmPassword' => [
         'required',
@@ -55,6 +49,13 @@ class AuthController extends Controller
 
     //エラーがあるかどうか
     if($validation->isError()){
+      //エラー処理
+      //エラーメッセージの取得
+      $_SESSION['errorMessages'] = $validation->getErrorMessages();
+      //リダイレクト
+      redirect('register');
+
+    }else{
       //パスワードのハッシュ化
       $data['password'] = $this->createHashedPassword($data['password']);
       //DB処理
@@ -66,23 +67,22 @@ class AuthController extends Controller
       }else{
         die('しばらく時間を空けてから再度お試しください');
       }
-    }else{
-      //エラー処理
-      //エラーメッセージの取得
-      $_SESSION['errorMessages'] = $validation->getErrorMessages();
-      //リダイレクト
-      redirect('register');
+      
     }
   }
 
   //ログイン
   public function login($request)
   {
+
     $data = $request->postData;
 
     //バリデーションルール
     $rules = [
-      'email' => ['required','email',['exists' => $this->model]
+      'email' => [
+        'required',
+        'email',
+        ['exists' => $this->model]
       ],
       'password' => ['required'],
     ];
@@ -94,19 +94,19 @@ class AuthController extends Controller
     $validation->validate();
 
     if($validation->isError()){
-      //ユーザの取得
-      $user = $this->model->findUser($data['email']);
-
-      //ログイン成功
-      $_SESSION['user_id'] = $user['id'];
-      //ユーザのホームページにリダイレクト
-      redirect('home');
-    }else{
        //エラー処理
       //エラーメッセージの取得
       $_SESSION['errorMessages'] = $validation->getErrorMessages();
       //リダイレクト
       redirect('login');
+
+    }else{
+      //ユーザの取得
+      $user = $this->model->findUser($data['email']);
+      //ログイン成功
+      Session::setLoginUserId($user['id']);
+      //ユーザのホームページにリダイレクト
+      redirect('user/home');
     }
   }
 
@@ -114,8 +114,8 @@ class AuthController extends Controller
   public function logout($request)
   {
     if($request->postData['logout'] === 'logout'){
-      //セッションの放棄
-      Session::destroy();
+      //ログアウトメッセージの表示
+      Session::setFlashMessage('logout','ログアウトしました。');
       //リダイレクト
       redirect();
     }

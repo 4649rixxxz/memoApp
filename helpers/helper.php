@@ -13,12 +13,17 @@ function redirect($path = '')
   exit;
 }
 
-//エラー時の値を取得
-function getOldValue($key)
+//エラー時およびデフォルトの値を取得
+function getOldValue($key,$default = null)
 {
+  //エラー時の値
   if(isset($_SESSION[$key])){
     echo $_SESSION[$key];
     unset($_SESSION[$key]);
+  }elseif(!isset($_SESSION[$key]) && isset($default)){
+    echo $default;
+  }else{
+    echo "";
   }
 }
 
@@ -57,4 +62,11 @@ function getFlashMessage($key)
   if(isFlashMessage() && isset($_SESSION['flash'][$key])){
     echo "<div class='alert alert-success' role='alert'>{$_SESSION['flash'][$key]}</div>";
   }
+}
+
+function getLogoutMessage()
+{
+  getFlashMessage('logout');
+  $_SESSION = [];
+  session_destroy();
 }

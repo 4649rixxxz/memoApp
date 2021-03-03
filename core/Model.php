@@ -10,7 +10,6 @@ class Model
   private $pass = DB_PASS;
   private $dbname = DB_NAME;
 
-
   private $dbh;
   private $stmt;
 
@@ -71,7 +70,7 @@ class Model
     $this->stmt = $this->dbh->query($sql);
   }
 
-  public function fetch($mode)
+  public function fetch($mode = \PDO::FETCH_BOTH)
   {
     $result = $this->stmt->fetch($mode);
 
@@ -104,6 +103,19 @@ class Model
    
   }
 
+
+  public function isUpdateUniqueValue($info,$currentValue,$updateValue)
+  {
+    //現在の値と更新後の値が同じ場合
+    if($currentValue === $updateValue){
+      return true;
+    }
+
+    if(!isset($updateValue) && $currentValue !== $updateValue){
+      return $this->isUniqueValue($info[0],$info[1],$updateValue);
+    }
+    
+  }
 
   
 }

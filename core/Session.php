@@ -13,8 +13,9 @@ class Session
     $this->createToken();
   }
 
-  private const ExistingKeys = [
-    'token'
+  private const bookedKeys = [
+    'token',
+    'flash'
   ];
 
   
@@ -23,7 +24,7 @@ class Session
     if(is_array($data)){
       foreach($data as $key => $value){
         //予約キーはスキップ
-        if(!array_key_exists($key,self::ExistingKeys)){
+        if(!array_key_exists($key,self::bookedKeys)){
           $_SESSION[$key] = $value;
         }
       }
@@ -63,5 +64,16 @@ class Session
   {
     $_SESSION = [];
     session_destroy();
+  }
+
+  public static function setLoginUserId($id)
+  {
+    foreach($_SESSION as $key => $value){
+      if(isset($_SESSION[$key])){
+        unset($_SESSION[$key]);
+      }
+    }
+
+    $_SESSION['user_id'] = $id;
   }
 }

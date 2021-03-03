@@ -6,8 +6,6 @@ use app\core\Model;
 
 class Auth extends Model
 {
-  //テーブル名
-  const TABLE = 'users';
   //ユーザ登録
   public function insert($data)
   {
@@ -18,17 +16,15 @@ class Auth extends Model
     $this->bind(':email',$data['email']);
     $this->bind(':password',$data['password']);
 
-    if($this->execute()){
-      return true;
-    }else {
-      return false;
-    }
+    return $this->execute();
   }
 
   /*
-    @return 
-  */
 
+    @return  array|bool
+
+  */
+  //ログインユーザの取得
   public function findUser($email)
   {
     $sql = "SELECT * FROM users WHERE email = :email";

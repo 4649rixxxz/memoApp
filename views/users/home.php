@@ -1,3 +1,3 @@
 @extends(main)
-<?php echo '<pre>';print_r($_SESSION); echo '</pre>';?>
-<h1>会員ページ</h1>
+<?php getFlashMessage('success');?>
+<h1>ユーザのホーム画面</h1>

@@ -20,6 +20,9 @@ $app->router->post('/login',[AuthController::class,'login']);
 $app->router->post('/logout',[AuthController::class,'logout']);
 $app->router->get('/register',[AuthController::class,'register']);
 $app->router->post('/store',[AuthController::class,'store']);
-$app->router->get('/home',[UserController::class,'index']);
+$app->router->get('/user/home',[UserController::class,'index']);
+$app->router->get('/user/show',[UserController::class,'show']);
+$app->router->get('/user/edit',[UserController::class,'edit']);
+$app->router->post('/user/update',[UserController::class,'update']);
 
 $app->run();
