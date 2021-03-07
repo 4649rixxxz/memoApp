@@ -36,10 +36,22 @@ class Router
   {
     //パスの取得
     $path = $this->request->getPath();
+    //パラメータの獲得
+    if($this->getParams($path)){
+      $param = $this->getParams($path);
+      //ルート配列のパス{*}をすべてパラメータに変換
+      $this->routes = $this->changePathParam($this->routes,$param);
+    }
+    // echo "<pre>";
+    // var_dump($this->routes);
+    // exit;
+    // echo "</pre>";
     //httpメソッドの取得
     $method = $this->request->getHttpMethod();
     //URLに対応するコールバック関数の格納
     $callback = $this->routes[$method][$path] ?? false;
+
+
 
     //存在しないリクエスト
     if($callback === false){
@@ -80,6 +92,57 @@ class Router
     $modelClass = "app\\models\\".$modelClass;
 
     return $modelClass;
+  }
+
+
+  private function getParams($path)
+  {
+    $explode = explode('/',$path);
+    $param = false;
+
+    foreach($explode as $value){
+      //文字型の数字か数値型か
+      if(is_numeric($value)){
+        $param = $value;
+        break;
+      }
+    }
+
+    return $param;
+  }
+
+
+  private function changePathParam($routes,$param)
+  {
+    $result = [];
+    $methods = ['get','post'];
+
+    foreach($routes as $method => $pathArray)
+    {
+      if(in_array($method,$methods))
+      {
+        foreach($pathArray as $path => $callback)
+        {
+          if(preg_match('/\{.+\}/',$path,$target)){
+            //{*}をパラメータに変換
+            $path = str_replace($target[0],$param,$path);
+            //変換後のパスに対応した関数の格納
+            $result[$method][$path] = $callback;
+            //空白および波括弧の削除
+            $property = str_replace([" ","　","{","}"],"",$target[0]);
+            //パラメータプロパティの格納
+            if(!property_exists($this->request,$property)){
+              //{id}の場合、requestオブジェクトにパラメータの値をプロパティidとして格納
+              $this->request->{$property} = intval($param);
+            }            
+          }else{
+            $result[$method][$path] = $callback;
+          }
+        }
+      }
+    }
+
+    return $result;
   }
 
 

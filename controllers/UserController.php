@@ -9,11 +9,6 @@ use app\core\Session;
 class UserController extends Controller
 {
  
-  public function index()
-  {
-    return $this->view('users/home');
-  }
-
   
   //ユーザ情報の表示
   public function show($request)

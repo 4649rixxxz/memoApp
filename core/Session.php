@@ -31,6 +31,7 @@ class Session
     }
   }
 
+  //Postメソッドの時
   public function post($data)
   {
     //再発行
@@ -42,8 +43,12 @@ class Session
       //「token」キーが存在しない場合もしくはトークンが一致しない場合、エラー表示
       die('不正なリクエストです');
     }elseif($data['token'] === $_SESSION['token']){
+      //postデータのトークン削除
+      unset($data['token']);
       //値のリセット
       unset($_SESSION['token']);
+
+      return $data;
     }
   }
 

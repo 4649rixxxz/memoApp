@@ -77,6 +77,13 @@ class Model
     return $result;
   }
 
+  public function fetchAll($mode = \PDO::FETCH_BOTH)
+  {
+    $result = $this->stmt->fetchAll($mode);
+
+    return $result;
+  }
+
 
   public function isUniqueValue($table,$column,$value)
   {
