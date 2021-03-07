@@ -13,5 +13,6 @@ define('DB_NAME','memoApp');
 define('ATTR_JA',[
   'email' => 'メールアドレス',
   'password' => 'パスワード',
-  'confirmPassword' => '確認用パスワード'
+  'confirmPassword' => '確認用パスワード',
+  'cat_name' => 'メモのカテゴリー名'
 ]);

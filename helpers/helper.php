@@ -66,7 +66,9 @@ function getFlashMessage($key)
 
 function getLogoutMessage()
 {
-  getFlashMessage('logout');
-  $_SESSION = [];
-  session_destroy();
+  if(isset($_SESSION['flash']['logout'])){
+    getFlashMessage('logout');
+    $_SESSION = [];
+    session_destroy();
+  }
 }

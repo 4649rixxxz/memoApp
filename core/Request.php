@@ -21,7 +21,7 @@ class Request
       //エスケープ処理
       $this->postData = $this->getEscapedData($_POST);
       // Session::start($this->postData,$this->getHttpMethod());
-      $this->session->post($this->postData);
+      $this->postData = $this->session->post($this->postData);
     }
     //ログインユーザオブジェクトの格納
     if(isset($_SESSION['user_id'])){

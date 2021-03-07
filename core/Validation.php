@@ -37,7 +37,7 @@ class Validation
               $this->setRequiredMessage($key);
             }
           }
-          //Email
+          //Emailかどうか
           if($rule === 'email'){
             //ルール
             $reg_str = "/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/";
@@ -46,7 +46,7 @@ class Validation
              $this->setEmailMessage($key);
             }
           }
-          //Match
+          //対象の値と指定した値が一致しているか
           if(is_array($rule) && array_key_exists('match',$rule)){
             //対象のキーを取得
             $targetKey = $rule['match'];
@@ -69,6 +69,7 @@ class Validation
               $this->setUniqueMessage($key);
             }
           }
+          //ユーザが既に存在するか
           if($key === 'email' && is_array($rule) && array_key_exists('exists',$rule)){
             //モデルの取得
             $authModel = $rule['exists'];
@@ -85,6 +86,7 @@ class Validation
               }
             }
           }
+          //dbに存在する唯一の値を更新
           if($key === 'email' && is_array($rule) && array_key_exists('update_unique',$rule)){
              //[0]テーブル名と[1]カラム名を格納
              $info = explode(':',$rule['update_unique'][0]);
@@ -96,6 +98,21 @@ class Validation
              if(!$this->model->isUpdateUniqueValue($info,$currentEmail,$updateEmail)){
                $this->setUniqueMessage('email');
              }
+          }
+          //最大値
+          if(preg_match('/^max:[1-9][0-9]*/',$rule)){
+            $rule = str_replace('max:','',$rule);
+            //文字列から数値へ型変換
+            $maxNumber = intval($rule);
+            //文字数が最大文字数かどうか調べる
+            if(mb_strlen($data[$key]) > $maxNumber){
+              //オーバー文字
+              $overNum = mb_strlen($data[$key]);
+              //最大文字数との差
+              $diff = $overNum - $maxNumber;
+              //エラーメッセージ
+              $this->setMaxOverMessage($key,$diff);
+            }
           }
 
         }
@@ -120,6 +137,12 @@ class Validation
       return false;
     }
   }
+
+  /*----------------------------------------------------------------
+
+  // 以下、エラーメッセージ格納関数
+
+  ----------------------------------------------------------------*/
   
   protected function setRequiredMessage($key)
   {
@@ -149,5 +172,9 @@ class Validation
     $this->errorMessages[$key][] = $this->lists[$key]."が間違っています。";
   }
 
+  protected function setMaxOverMessage($key,$diff)
+  {
+    $this->errorMessages[$key][] = $this->lists[$key]."が最大文字数を".$diff."文字超えています";
+  }
 
 }

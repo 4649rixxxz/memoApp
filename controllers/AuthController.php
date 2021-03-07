@@ -106,7 +106,7 @@ class AuthController extends Controller
       //ログイン成功
       Session::setLoginUserId($user['id']);
       //ユーザのホームページにリダイレクト
-      redirect('user/home');
+      redirect('home');
     }
   }
 
