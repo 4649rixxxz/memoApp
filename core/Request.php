@@ -52,6 +52,7 @@ class Request
     return $this->getHttpMethod() === 'post';
   }
 
+  //postデータのサニタイズ
   public function getEscapedData($array)
   {
     $data = [];
@@ -67,6 +68,11 @@ class Request
     return $data;
   }
 
+  /* 
+
+    @return User Object
+
+  */
   public function getLoginUserModel()
   {
     $user = new User;

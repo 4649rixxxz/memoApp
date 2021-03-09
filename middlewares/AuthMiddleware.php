@@ -3,6 +3,7 @@
 namespace app\middlewares;
 
 use app\controllers\CategoryController;
+use app\controllers\MemoController;
 use app\controllers\UserController;
 use app\core\Middleware;
 
@@ -11,7 +12,8 @@ class AuthMiddleware extends Middleware
   private $loginStatus;
   private $classLists = [
     UserController::class,
-    CategoryController::class
+    CategoryController::class,
+    MemoController::class
   ];
 
   public function __construct()

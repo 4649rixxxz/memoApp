@@ -15,6 +15,7 @@ class Session
 
   private const bookedKeys = [
     'token',
+    'timeout',
     'flash'
   ];
 
@@ -52,7 +53,7 @@ class Session
     }
   }
 
-  public function createToken()
+  private function createToken()
   {
     //ワンタイムトークンの作成
     if(empty($_SESSION['token'])){
@@ -60,25 +61,30 @@ class Session
     }
   }
 
-  public static function setFlashMessage($key,$value)
+  public function setFlashMessage($key,$value)
   {
     $_SESSION['flash'][$key] = $value;
   }
 
-  public static function destroy()
+  public function destroy()
   {
     $_SESSION = [];
     session_destroy();
   }
 
-  public static function setLoginUserId($id)
+  public function setLoginUserId($id)
   {
-    foreach($_SESSION as $key => $value){
-      if(isset($_SESSION[$key])){
-        unset($_SESSION[$key]);
-      }
-    }
-
+    $_SESSION = [];
     $_SESSION['user_id'] = $id;
   }
+
+  public static function unsetValue($keyArray)
+  {
+    foreach($keyArray as $key => $value){
+      unset($_SESSION[$key]);
+    }
+  }
+
+
+  
 }

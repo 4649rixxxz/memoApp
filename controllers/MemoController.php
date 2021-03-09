@@ -1,28 +1,34 @@
-<?php
+<?php 
 
 namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
 
-class CategoryController extends Controller
+
+
+
+class MemoController extends Controller
 {
   public function index($request)
   {
+    $id = $request->id;
+    //ログインユーザの取得
     $user = $request->user;
-    $categories = $this->model->getCategories($request->user->id);
+    $memos = $this->model->getAll($user->id,$id);
 
-  
-    return $this->view('users/home',[
-      'user' => $user,
-      'categories' => $categories
+    return $this->view('memos/index',[
+      'id' => $id,
+      'memos' => $memos
     ]);
   }
 
-
-  public function create()
+  public function create($request)
   {
-    return $this->view('categories/create');
+    $id = $request->id;
+    return $this->view('memos/create',[
+      'id' => $id
+    ]);
   }
 
   public function store($request)
@@ -30,12 +36,18 @@ class CategoryController extends Controller
     $data = $request->postData;
     //ログインユーザの取得
     $user = $request->user;
+    //カテゴリーのid
+    $cat_id = $request->id;
 
     //バリデーションルール
     $rules = [
-      'cat_name' => [
+      'heading' => [
         'required',
-        'max:10',
+        'max:20'
+      ],
+      'content' => [
+        'required',
+        'max:200',
      ],
     ];
     
@@ -51,13 +63,13 @@ class CategoryController extends Controller
       //エラーメッセージの取得
       $_SESSION['errorMessages'] = $validation->getErrorMessages();
       //リダイレクト
-      redirect('category/create');
+      redirect("memo/category/{$cat_id}/create");
 
     }else{
       //バリデーション成功時
-      if($this->model->insert($user->id,$data)){
+      if($this->model->insert($user->id,$cat_id,$data)){
         //リダイレクト
-        redirect('home');
+        redirect("memo/category/{$cat_id}/index");
       }else{
         die('しばらくしてから再度やり直してください');
       }
@@ -67,13 +79,12 @@ class CategoryController extends Controller
   public function show($request)
   {
     $user = $request->user;
-    $param = $request->id;
+    $memo_id = $request->id;
 
+    $memo = $this->model->findOne($memo_id,$user->id);
 
-    $data = $this->model->findOne($user->id,$param);
-
-    return $this->view('categories/show',[
-      'data' => $data
+    return $this->view('memos/show',[
+      'memo' => $memo
     ]);
   }
 
@@ -82,12 +93,18 @@ class CategoryController extends Controller
     $data = $request->postData;
     //ログインユーザの取得
     $user = $request->user;
+    //カテゴリーのid
+    $memo_id = $request->id;
 
     //バリデーションルール
     $rules = [
-      'cat_name' => [
+      'heading' => [
         'required',
-        'max:10',
+        'max:20'
+      ],
+      'content' => [
+        'required',
+        'max:200',
      ],
     ];
     
@@ -103,13 +120,17 @@ class CategoryController extends Controller
       //エラーメッセージの取得
       $_SESSION['errorMessages'] = $validation->getErrorMessages();
       //リダイレクト
-      redirect("category/{$request->id}/show");
+      redirect("memo/{$memo_id}/show");
 
     }else{
       //バリデーション成功時
-      if($this->model->update($user->id,$request->id,$data)){
-        //リダイレクト
-        redirect('home');
+      if($this->model->update($memo_id,$user->id,$data)){
+        //メモのカテゴリーを取得
+        $category_id = $this->model->getCategory($memo_id,$user->id);
+        if($category_id !== false){
+          //リダイレクト
+          redirect("memo/category/{$category_id}/index");
+        }
       }else{
         die('しばらくしてから再度やり直してください');
       }
@@ -118,17 +139,22 @@ class CategoryController extends Controller
 
   public function delete($request)
   {
-    //ログインユーザの取得
     $user = $request->user;
-    
-    if($this->model->delete($user->id,$request->id)){
-      //リダイレクト
-      redirect('home');
+    $memo_id = $request->id;
+    //メモのカテゴリーを取得
+    $category_id = $this->model->getCategory($memo_id,$user->id);
+
+    if($category_id !== false){
+      if($this->model->delete($memo_id,$user->id)){
+         //リダイレクト
+         redirect("memo/category/{$category_id}/index");
+       }else{
+        die('しばらくしてから再度やり直してください');
+       }
     }else{
       die('しばらくしてから再度やり直してください');
     }
   }
-
 
 
 }

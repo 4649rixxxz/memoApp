@@ -57,18 +57,14 @@ function isFlashMessage()
 }
 
 //フラッシュメッセージの取得
-function getFlashMessage($key)
+function getFlashMessage($key,$sessionDestroy = false)
 {
   if(isFlashMessage() && isset($_SESSION['flash'][$key])){
     echo "<div class='alert alert-success' role='alert'>{$_SESSION['flash'][$key]}</div>";
-  }
-}
-
-function getLogoutMessage()
-{
-  if(isset($_SESSION['flash']['logout'])){
-    getFlashMessage('logout');
-    $_SESSION = [];
-    session_destroy();
+    if($sessionDestroy === true){
+      //セッションの放棄
+      $_SESSION = [];
+      session_destroy();
+    }
   }
 }

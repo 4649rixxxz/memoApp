@@ -42,10 +42,6 @@ class Router
       //ルート配列のパス{*}をすべてパラメータに変換
       $this->routes = $this->changePathParam($this->routes,$param);
     }
-    // echo "<pre>";
-    // var_dump($this->routes);
-    // exit;
-    // echo "</pre>";
     //httpメソッドの取得
     $method = $this->request->getHttpMethod();
     //URLに対応するコールバック関数の格納

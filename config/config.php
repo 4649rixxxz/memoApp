@@ -14,5 +14,7 @@ define('ATTR_JA',[
   'email' => 'メールアドレス',
   'password' => 'パスワード',
   'confirmPassword' => '確認用パスワード',
-  'cat_name' => 'メモのカテゴリー名'
+  'cat_name' => 'メモのカテゴリー名',
+  'heading' => 'メモの見出し',
+  'content' => '内容'
 ]);

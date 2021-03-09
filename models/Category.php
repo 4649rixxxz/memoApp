@@ -3,6 +3,7 @@
 namespace app\models;
 
 use app\core\Model;
+use app\models\Memo;
 
 
 class Category extends Model
@@ -53,7 +54,7 @@ class Category extends Model
     return $data;
   }
 
-  public function updateName($user_id,$id,$data)
+  public function update($user_id,$id,$data)
   {
     $sql = "UPDATE categories SET name = :name WHERE user_id = {$user_id} AND id = :id";
 
@@ -64,13 +65,18 @@ class Category extends Model
     return $this->execute();
   }
 
-  public function deleteName($user_id,$id)
+  public function delete($user_id,$id)
   {
     $sql = "DELETE FROM categories WHERE user_id = {$user_id} AND id = :id";
 
     $this->prepare($sql);
     $this->bind(":id",$id);
 
-    return $this->execute();
+    if($this->execute()){
+      return true;
+    }
+
+    return false;
   }
+
 }
