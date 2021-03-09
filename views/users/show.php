@@ -11,3 +11,7 @@
 <div>
   <a href="<?php getUrlRoot('user/edit');?>">編集する</a>
 </div>
+<form action="<?php getUrlRoot("user/delete");?>" method="post">
+  {{ csrf_token }}
+  <button type="submit">アカウントを削除する</button>
+</form>

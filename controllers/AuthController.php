@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
-use app\core\Session;
 
 class AuthController extends Controller
 {
@@ -34,9 +33,10 @@ class AuthController extends Controller
         'email',
         ['unique' => ['users:email']]
       ],
-      'password' => ['required'],
+      'password' => ['required','min:8'],
       'confirmPassword' => [
         'required',
+        'min:8',
         ['match' => 'password']
       ]
     ];
@@ -61,7 +61,7 @@ class AuthController extends Controller
       //DB処理
       if($this->model->insert($data)){
         //フラッシュメッセージの追加
-        Session::setFlashMessage('success','新規登録が完了しました。');
+        $request->session->setFlashMessage('success','新規登録が完了しました。ログインしてください。');
         //完了画面へリダイレクト
         redirect('login');
       }else{
@@ -104,7 +104,7 @@ class AuthController extends Controller
       //ユーザの取得
       $user = $this->model->findUser($data['email']);
       //ログイン成功
-      Session::setLoginUserId($user['id']);
+      $request->session->setLoginUserId($user['id']);
       //ユーザのホームページにリダイレクト
       redirect('home');
     }
@@ -115,7 +115,7 @@ class AuthController extends Controller
   {
     if($request->postData['logout'] === 'logout'){
       //ログアウトメッセージの表示
-      Session::setFlashMessage('logout','ログアウトしました。');
+      $request->session->setFlashMessage('logout','ログアウトしました。');
       //リダイレクト
       redirect();
     }

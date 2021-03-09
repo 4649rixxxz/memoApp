@@ -13,15 +13,18 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <?php if($_SESSION['user_id'] ?? false): ?>
+            <li>
+              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('home'); ?>">ホーム</a>
+            </li>
+            <li>
+              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('user/show'); ?>">マイページ</a>
+            </li>
             <li class="nav-item">
               <form action="<?php getUrlRoot('logout'); ?>" method="post">
                 {{ csrf_token }}
                 <input type="hidden" name="logout" value="logout">
                 <button type="submit">ログアウト</button>
               </form>
-            </li>
-            <li>
-              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('user/show'); ?>">マイページ</a>
             </li>
           <?php else: ?>
             <li>

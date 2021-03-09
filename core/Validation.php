@@ -114,6 +114,16 @@ class Validation
               $this->setMaxOverMessage($key,$diff);
             }
           }
+          //最小値
+          if(preg_match('/^min:[1-9][0-9]*/',$rule)){
+            $rule = str_replace('min:','',$rule);
+            //文字列から数値へ型変換
+            $minNumber = intval($rule);
+            //文字数が最低文字数を満たしているかどうか調べる
+            if(mb_strlen($data[$key]) < $minNumber){
+              $this->setMinValueMessage($key,$minNumber);
+            }
+          }
 
         }
       }
@@ -134,9 +144,12 @@ class Validation
     if(count($errors) > 0){
       return true;
     }else{
+      Session::unsetValue($this->rules);
       return false;
     }
   }
+
+  
 
   /*----------------------------------------------------------------
 
@@ -174,7 +187,11 @@ class Validation
 
   protected function setMaxOverMessage($key,$diff)
   {
-    $this->errorMessages[$key][] = $this->lists[$key]."が最大文字数を".$diff."文字超えています";
+    $this->errorMessages[$key][] = $this->lists[$key]."が最大文字数を".$diff."文字超えています。";
   }
 
+  protected function setMinValueMessage($key,$minNumber)
+  {
+    $this->errorMessages[$key][] = $this->lists[$key]."が最低文字数、".$minNumber."文字を満たしていません。";
+  }
 }

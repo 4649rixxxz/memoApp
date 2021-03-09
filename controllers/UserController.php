@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
-use app\core\Session;
 
 class UserController extends Controller
 {
@@ -71,13 +70,26 @@ class UserController extends Controller
       //DB処理
       if($user->update($user->id,$data)){
         //フラッシュメッセージの追加
-        Session::setFlashMessage('success','ユーザ情報の更新が完了しました。');
+        $request->session->setFlashMessage('success','ユーザ情報の更新が完了しました。');
         //ログイン画面へリダイレクト
         redirect('user/home');
       }else{
         die('しばらく時間を空けてから再度お試しください');
       }
 
+    }
+  }
+
+
+  public function delete($request)
+  {
+    $user = $request->user;
+
+    if($this->model->delete($user->id)){
+      //フラッシュメッセージの追加
+      $request->session->setFlashMessage('end','ご利用ありがとうございました');
+      //リダイレクト
+      redirect();
     }
   }
 

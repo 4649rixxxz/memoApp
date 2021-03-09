@@ -24,13 +24,16 @@ class User extends Model
 
     
     // Ex.)$this->id = $userData['id'];
-    foreach($userData as $key => $value){
-      if(property_exists($this,$key)){
-        $this->{$key} = $value;
-      }
-    }
+    if($userData !== false){
 
-    return $this;
+      foreach($userData as $key => $value){
+        if(property_exists($this,$key)){
+          $this->{$key} = $value;
+        }
+      }
+  
+      return $this;
+    }
 
 
   }
@@ -45,6 +48,19 @@ class User extends Model
    $this->bind(':password',$data['password']);
 
    return $this->execute();
+
+  }
+
+  public function delete($id)
+  {
+    $sql = "DELETE FROM users WHERE id = {$id}";
+
+    if($this->query($sql) !== false){
+      return true;
+    }else{
+      return false;
+    }
+
 
   }
 
