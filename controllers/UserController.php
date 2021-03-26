@@ -9,20 +9,32 @@ class UserController extends Controller
 {
  
   
-  //ユーザ情報の表示
+  /**
+   * ログインユーザのアカウント情報の表示
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function show($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
     
     return $this->view('users/show',[
       'user' => $user
     ]);
   }
     
-  //ユーザ情報の編集画面
+  /**
+   * ログインユーザのアカウント情報の更新画面の表示
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function edit($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
     
     return $this->view('users/edit',[
       'user' => $user
@@ -30,10 +42,15 @@ class UserController extends Controller
   }
 
 
-  //ユーザ情報の更新
+  /**
+   * ログインユーザのアカウント情報の更新処理
+   *
+   * @param object $request
+   */
+
   public function update($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
     $data = $request->postData;
 
     //バリデーションルール
@@ -70,20 +87,25 @@ class UserController extends Controller
       //DB処理
       if($user->update($user->id,$data)){
         //フラッシュメッセージの追加
-        $request->session->setFlashMessage('success','ユーザ情報の更新が完了しました。');
+        $request->session->setFlashMessage('success','ユーザ情報の更新が完了しました。再度ログインしてください。');
+        //ログアウト
+        unset($_SESSION['user_id']);
         //ログイン画面へリダイレクト
-        redirect('user/home');
-      }else{
-        die('しばらく時間を空けてから再度お試しください');
+        redirect('login');
       }
-
     }
   }
 
 
+  /**
+   * ログインユーザのアカウント削除処理
+   *
+   * @param object $request
+   */
+  
   public function delete($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
 
     if($this->model->delete($user->id)){
       //フラッシュメッセージの追加

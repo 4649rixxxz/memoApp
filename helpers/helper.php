@@ -2,7 +2,7 @@
 
 function getUrlRoot($goal = '')
 {
-  echo URLROOT.$goal;
+  return URLROOT.$goal;
 }
 
 function redirect($path = '')

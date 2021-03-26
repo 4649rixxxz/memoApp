@@ -7,10 +7,17 @@ use app\core\Validation;
 
 class CategoryController extends Controller
 {
+  /**
+   * ユーザーが持つすべてのカテゴリーを表示する
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function index($request)
   {
-    $user = $request->user;
-    $categories = $this->model->getCategories($request->user->id);
+    $user = $request->auth();
+    $categories = $this->model->getAllCategories($user->id);
 
   
     return $this->view('users/home',[
@@ -20,16 +27,28 @@ class CategoryController extends Controller
   }
 
 
+  /**
+   * 新規カテゴリーの登録画面の表示
+   *
+   * @return string
+   */
+
   public function create()
   {
     return $this->view('categories/create');
   }
 
+  /**
+   * 新規カテゴリーの登録
+   *
+   * @param object $request
+   */
+
   public function store($request)
   {
     $data = $request->postData;
     //ログインユーザの取得
-    $user = $request->user;
+    $user = $request->auth();
 
     //バリデーションルール
     $rules = [
@@ -58,30 +77,41 @@ class CategoryController extends Controller
       if($this->model->insert($user->id,$data)){
         //リダイレクト
         redirect('home');
-      }else{
-        die('しばらくしてから再度やり直してください');
       }
     }
   }
 
+  /**
+   * 特定のカテゴリーの編集画面の表示
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function show($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
     $param = $request->id;
 
 
-    $data = $this->model->findOne($user->id,$param);
+    $data = $this->model->getCategory($user->id,$param);
 
     return $this->view('categories/show',[
       'data' => $data
     ]);
   }
 
+  /**
+   * 特定のカテゴリーの更新
+   *
+   * @param object $request
+   */
+
   public function update($request)
   {
     $data = $request->postData;
     //ログインユーザの取得
-    $user = $request->user;
+    $user = $request->auth();
 
     //バリデーションルール
     $rules = [
@@ -110,22 +140,24 @@ class CategoryController extends Controller
       if($this->model->update($user->id,$request->id,$data)){
         //リダイレクト
         redirect('home');
-      }else{
-        die('しばらくしてから再度やり直してください');
       }
     }
   }
 
+  /**
+   * 特定のカテゴリーの削除
+   *
+   * @param object $request
+   */
+
   public function delete($request)
   {
     //ログインユーザの取得
-    $user = $request->user;
+    $user = $request->auth();
     
     if($this->model->delete($user->id,$request->id)){
       //リダイレクト
       redirect('home');
-    }else{
-      die('しばらくしてから再度やり直してください');
     }
   }
 

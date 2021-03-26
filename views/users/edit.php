@@ -1,6 +1,6 @@
 @extends(main)
 <h1>更新画面</h1>
-<form action="<?php getUrlRoot('user/update');?>" method="post">
+<form action="<?php echo getUrlRoot('user/update');?>" method="post">
   {{ csrf_token }}
   <div class="mb-3">
     <label for="email" class="form-label">メールアドレス</label>
@@ -8,7 +8,7 @@
     <?php getFirstErrMessage('email');?>
   </div>
   <div class="mb-3">
-    <label for="password" class="form-label">新しいパスワード</label>
+    <label for="password" class="form-label">新しいパスワード(8文字以上)</label>
     <input name="password" value="<?php getOldValue('password');?>" type="password" class="form-control" id="password">
     <?php getFirstErrMessage('password');?>
   </div>

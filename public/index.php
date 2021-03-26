@@ -1,4 +1,5 @@
 <?php
+
 //基本設定
 require_once __DIR__.'/../config/config.php';
 //ヘルパ関数
@@ -34,9 +35,9 @@ $app->router->post('/category/{id}/update',[CategoryController::class,'update'])
 $app->router->post('/category/{id}/delete',[CategoryController::class,'delete']);
 
 
-$app->router->get('/memo/category/{id}/index',[MemoController::class,'index']);
-$app->router->get('/memo/category/{id}/create',[MemoController::class,'create']);
-$app->router->post('/memo/category/{id}/store',[MemoController::class,'store']);
+$app->router->get('/memo/category/{category_id}/index',[MemoController::class,'index']);
+$app->router->get('/memo/category/{category_id}/create',[MemoController::class,'create']);
+$app->router->post('/memo/category/{category_id}/store',[MemoController::class,'store']);
 $app->router->get('/memo/{id}/show',[MemoController::class,'show']);
 $app->router->post('/memo/{id}/update',[MemoController::class,'update']);
 $app->router->post('/memo/{id}/delete',[MemoController::class,'delete']);

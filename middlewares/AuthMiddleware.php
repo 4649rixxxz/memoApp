@@ -22,6 +22,12 @@ class AuthMiddleware extends Middleware
     $this->loginStatus = $_SESSION['user_id'] ?? false;
   }
 
+  /**
+   * 非ログインユーザがログインユーザしか閲覧できないルートにアクセスしたときにリダイレクトさせる
+   *
+   * @param class $class
+   */
+
   public function guard($class)
   {
    if($this->loginStatus === false && in_array($class,$this->classLists)){
