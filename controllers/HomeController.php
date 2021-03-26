@@ -6,6 +6,12 @@ use app\core\Controller;
 
 class HomeController extends Controller
 {
+  /**
+   * ユーザーのホーム画面ではなく、アプリのホーム画面の表示
+   *
+   * @return string
+   */
+
   public function index()
   {
     $data = ['name' => '田中'];

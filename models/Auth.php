@@ -6,7 +6,13 @@ use app\core\Model;
 
 class Auth extends Model
 {
-  //ユーザ登録
+  /**
+   * ユーザの新規登録
+   * 
+   * @param array $data
+   * @return boolean
+   */
+
   public function insert($data)
   {
     $this->prepare(
@@ -19,12 +25,13 @@ class Auth extends Model
     return $this->execute();
   }
 
-  /*
+  /**
+   * メールアドレスをもとにユーザ情報の取得
+   * 
+   * @param string $email
+   * @return array|boolean
+   */
 
-    @return  array|bool
-
-  */
-  //ログインユーザの取得
   public function findUser($email)
   {
     $sql = "SELECT * FROM users WHERE email = :email";
@@ -41,4 +48,6 @@ class Auth extends Model
     }
     
   }
+
+  
 }

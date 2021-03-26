@@ -9,18 +9,18 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="<?php getUrlRoot(); ?>"><?php echo APPNAME; ?></a>
+      <a class="navbar-brand" href="<?php echo getUrlRoot(); ?>"><?php echo APPNAME; ?></a>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <?php if($_SESSION['user_id'] ?? false): ?>
             <li>
-              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('home'); ?>">ホーム</a>
+              <a class="nav-link" aria-current="page" href="<?php echo getUrlRoot('home'); ?>">ホーム</a>
             </li>
             <li>
-              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('user/show'); ?>">マイページ</a>
+              <a class="nav-link" aria-current="page" href="<?php echo getUrlRoot('user/show'); ?>">マイページ</a>
             </li>
             <li class="nav-item">
-              <form action="<?php getUrlRoot('logout'); ?>" method="post">
+              <form action="<?php echo getUrlRoot('logout'); ?>" method="post">
                 {{ csrf_token }}
                 <input type="hidden" name="logout" value="logout">
                 <button type="submit">ログアウト</button>
@@ -28,10 +28,10 @@
             </li>
           <?php else: ?>
             <li>
-              <a class="nav-link" aria-current="page" href="<?php getUrlRoot('login'); ?>">ログイン</a>
+              <a class="nav-link" aria-current="page" href="<?php echo getUrlRoot('login'); ?>">ログイン</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="<?php getUrlRoot('register'); ?>">新規登録</a>
+              <a class="nav-link" href="<?php echo getUrlRoot('register'); ?>">新規登録</a>
             </li>
           <?php endif; ?>
         </ul>

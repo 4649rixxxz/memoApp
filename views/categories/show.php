@@ -1,5 +1,5 @@
 @extends(main)
-<form action="<?php getUrlRoot("category/{$data['id']}/update");?>" method="post">
+<form action="<?php echo getUrlRoot("category/{$data['id']}/update");?>" method="post">
   {{ csrf_token }}
   <input type="text" name="cat_name" value="<?php echo $data['name'];?>">
   <?php getFirstErrMessage('cat_name'); ?>

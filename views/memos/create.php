@@ -1,6 +1,6 @@
 @extends(main)
 <h1>メモの作成</h1>
-<form action="<?php getUrlRoot("memo/category/{$id}/store");?>" method="post">
+<form action="<?php echo getUrlRoot("memo/category/{$id}/store");?>" method="post">
   {{ csrf_token }}
   <h3>メモの見出し</h3>
   <input type="text" name="heading" value="<?php getOldValue('heading');?>">

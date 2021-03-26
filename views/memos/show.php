@@ -1,6 +1,6 @@
 @extends(main)
 
-<form action="<?php getUrlRoot("memo/{$memo['id']}/update");?>" method="post">
+<form action="<?php echo getUrlRoot("memo/{$memo['id']}/update");?>" method="post">
   {{ csrf_token }}
   <input type="text" name="heading" value="<?php echo $memo['heading'];?>">
   <?php getFirstErrMessage('heading'); ?>

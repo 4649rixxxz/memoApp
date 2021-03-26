@@ -6,37 +6,43 @@ use app\core\Model;
 
 class User extends Model
 {
-  
-  public $id;
-  public $name;
-  public $email;
-  public $created_at;
-  public $updated_at;
-
+  /**
+   * ログインユーザのアカウント情報の取得
+   *
+   * @param string $id
+   * @return object
+   */
 
   public function getUserData($id)
   {
    
     $sql = "SELECT * FROM users WHERE id = {$id}";
 
-    $this->query($sql);    
-    $userData = $this->fetch(\PDO::FETCH_ASSOC);
+    if($this->query($sql)){
 
-    
-    // Ex.)$this->id = $userData['id'];
-    if($userData !== false){
-
-      foreach($userData as $key => $value){
-        if(property_exists($this,$key)){
-          $this->{$key} = $value;
-        }
-      }
+      $userData = $this->fetch(\PDO::FETCH_ASSOC);
+      // カラム名と同じ名前のプロパティをセットする
+      if($userData !== false){
   
-      return $this;
-    }
-
+        foreach($userData as $key => $value){
+          if(!property_exists($this,$key)){
+            $this->{$key} = $value;
+          }
+        }
+    
+        return $this;
+      }
+    }    
 
   }
+
+  /**
+   * ログインユーザのアカウント情報の更新
+   * 
+   * @param string $id
+   * @param array $data
+   * @return boolean
+   */
 
   public function update($id,$data)
   {
@@ -51,16 +57,18 @@ class User extends Model
 
   }
 
+  /**
+   * ログインユーザのアカウント削除
+   *
+   * @param string $id
+   * @return boolean
+   */
+
   public function delete($id)
   {
     $sql = "DELETE FROM users WHERE id = {$id}";
 
-    if($this->query($sql) !== false){
-      return true;
-    }else{
-      return false;
-    }
-
+    return $this->query($sql);
 
   }
 

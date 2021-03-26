@@ -4,40 +4,64 @@ namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
-
-
-
+use app\models\Category;
 
 class MemoController extends Controller
 {
+  /**
+   * 特定のカテゴリーのすべてのメモを表示する
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function index($request)
   {
-    $id = $request->id;
+    //カテゴリーidの取得
+    $category_id = $request->category_id;
     //ログインユーザの取得
-    $user = $request->user;
-    $memos = $this->model->getAll($user->id,$id);
+    $user = $request->auth();
+    //カテゴリー名を取得
+    $category = new Category;
+    $category_name = $category->getCategory($user->id,$category_id)["name"];
+    //すべてのメモを取得
+    $memos = $this->model->getAll($user->id,$category_id);
 
     return $this->view('memos/index',[
-      'id' => $id,
+      'id' => $category_id,
+      'category_name' => $category_name,
       'memos' => $memos
     ]);
   }
 
+  /**
+   * メモの新規登録画面の表示
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function create($request)
   {
-    $id = $request->id;
+    $category_id = $request->category_id;
     return $this->view('memos/create',[
-      'id' => $id
+      'id' => $category_id
     ]);
   }
+
+  /**
+   * メモの新規登録処理
+   * 
+   * @param object $request
+   */
 
   public function store($request)
   {
     $data = $request->postData;
     //ログインユーザの取得
-    $user = $request->user;
+    $user = $request->auth();
     //カテゴリーのid
-    $cat_id = $request->id;
+    $category_id = $request->category_id;
 
     //バリデーションルール
     $rules = [
@@ -59,26 +83,30 @@ class MemoController extends Controller
 
     //エラーがあるかどうか
     if($validation->isError()){
-      //エラー処理
       //エラーメッセージの取得
       $_SESSION['errorMessages'] = $validation->getErrorMessages();
       //リダイレクト
-      redirect("memo/category/{$cat_id}/create");
+      redirect("memo/category/{$category_id}/create");
 
     }else{
       //バリデーション成功時
-      if($this->model->insert($user->id,$cat_id,$data)){
-        //リダイレクト
-        redirect("memo/category/{$cat_id}/index");
-      }else{
-        die('しばらくしてから再度やり直してください');
+      if($this->model->insert($user->id,$category_id,$data)){
+        redirect("memo/category/{$category_id}/index");
       }
     }
   }
 
+
+  /**
+   * 特定のメモの編集画面の表示
+   *
+   * @param object $request
+   * @return string
+   */
+
   public function show($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
     $memo_id = $request->id;
 
     $memo = $this->model->findOne($memo_id,$user->id);
@@ -88,11 +116,18 @@ class MemoController extends Controller
     ]);
   }
 
+
+  /**
+   * 特定のメモの更新
+   *
+   * @param object $request
+   */
+
   public function update($request)
   {
     $data = $request->postData;
     //ログインユーザの取得
-    $user = $request->user;
+    $user = $request->auth();
     //カテゴリーのid
     $memo_id = $request->id;
 
@@ -107,7 +142,7 @@ class MemoController extends Controller
         'max:200',
      ],
     ];
-    
+
     //インスタンス化
     $validation = new Validation($data,$rules);
 
@@ -123,37 +158,35 @@ class MemoController extends Controller
       redirect("memo/{$memo_id}/show");
 
     }else{
-      //バリデーション成功時
+      //メモのカテゴリーを取得
+      $category_id = $this->model->getCategory($memo_id,$user->id);
+
       if($this->model->update($memo_id,$user->id,$data)){
-        //メモのカテゴリーを取得
-        $category_id = $this->model->getCategory($memo_id,$user->id);
-        if($category_id !== false){
-          //リダイレクト
-          redirect("memo/category/{$category_id}/index");
-        }
-      }else{
-        die('しばらくしてから再度やり直してください');
+      
+        redirect("memo/category/{$category_id}/index");
       }
     }
   }
 
+
+  /**
+   * 特定のメモの削除
+   *
+   * @param object $request
+   */
+
   public function delete($request)
   {
-    $user = $request->user;
+    $user = $request->auth();
     $memo_id = $request->id;
+
     //メモのカテゴリーを取得
     $category_id = $this->model->getCategory($memo_id,$user->id);
-
-    if($category_id !== false){
-      if($this->model->delete($memo_id,$user->id)){
-         //リダイレクト
-         redirect("memo/category/{$category_id}/index");
-       }else{
-        die('しばらくしてから再度やり直してください');
-       }
-    }else{
-      die('しばらくしてから再度やり直してください');
+    
+    if($this->model->delete($memo_id,$user->id)){
+      redirect("memo/category/{$category_id}/index");
     }
+      
   }
 
 

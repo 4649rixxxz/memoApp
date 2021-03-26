@@ -1,6 +1,6 @@
 @extends(auth)
 <h1>新規アカウントの作成</h1>
-<form action="<?php getUrlRoot('store');?>" method="post">
+<form action="<?php echo getUrlRoot('store');?>" method="post">
   {{ csrf_token }}
   <div class="mb-3">
     <label for="email" class="form-label">メールアドレス</label>
@@ -8,7 +8,7 @@
     <?php getFirstErrMessage('email');?>
   </div>
   <div class="mb-3">
-    <label for="password" class="form-label">パスワード</label>
+    <label for="password" class="form-label">パスワード(8文字以上)</label>
     <input name="password" value="<?php getOldValue('password');?>" type="password" class="form-control" id="password">
     <?php getFirstErrMessage('password');?>
   </div>

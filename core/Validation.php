@@ -6,11 +6,11 @@ use app\core\Model;
 
 class Validation
 {
-  public $model;
-  public $data;
-  public $rules;
-  public $lists = ATTR_JA;
-  public $errorMessages = [];
+  private $model;
+  private $data;
+  private $rules;
+  private $lists = ATTR_JA;
+  private $errorMessages = [];
 
   public function __construct($data,$rules)
   {
@@ -126,6 +126,9 @@ class Validation
           }
 
         }
+      }else{
+        //意図していない値が送られてきた時
+        die('不正なリクエスト');
       }
     }
   }
@@ -149,6 +152,21 @@ class Validation
     }
   }
 
+
+  /*----------------------------------------------------------------
+
+  // エラーの表示時のために、name属性を基に日本語に変換する関数
+
+  ----------------------------------------------------------------*/
+
+  private function transIntoJapanese($key)
+  {
+    if(array_key_exists($key,$this->lists)){
+      $key = $this->lists[$key];
+    }
+
+    return $key;
+  }
   
 
   /*----------------------------------------------------------------
@@ -157,41 +175,51 @@ class Validation
 
   ----------------------------------------------------------------*/
   
-  protected function setRequiredMessage($key)
+  private function setRequiredMessage($key)
   {
-    $this->errorMessages[$key][] = $this->lists[$key]."は必須項目です。";
+    $value = $this->transIntoJapanese($key);
+    $this->errorMessages[$key][] = $value."は必須項目です。";
   }
 
-  protected function setEmailMessage($key)
+  private function setEmailMessage($key)
   {
-    $this->errorMessages[$key][] = $this->lists[$key]."が不正なフォーマットのメールアドレスです。";
-  }
-
-
-  protected function setMatchMessage($key,$targetKey)
-  {
-    $this->errorMessages[$key][] = $this->lists[$key]."は".$this->lists[$targetKey]."と同じ値でなければなりません。";
+    $value = $this->transIntoJapanese($key);
+    $this->errorMessages[$key][] = $value."が不正なフォーマットのメールアドレスです。";
   }
 
 
-
-  protected function setUniqueMessage($key)
+  private function setMatchMessage($key,$targetKey)
   {
-    $this->errorMessages[$key][] = "この".$this->lists[$key]."はすでに使用されています。";
+    $value = $this->transIntoJapanese($key);
+    $value2 = $this->transIntoJapanese($targetKey);
+    $this->errorMessages[$key][] = $value."は".$value2."と同じ値でなければなりません。";
   }
 
-  protected function setUnmatchedMessage($key)
+
+
+  private function setUniqueMessage($key)
   {
-    $this->errorMessages[$key][] = $this->lists[$key]."が間違っています。";
+    $value = $this->transIntoJapanese($key);
+    $this->errorMessages[$key][] = "この".$value."はすでに使用されています。";
   }
 
-  protected function setMaxOverMessage($key,$diff)
+  private function setUnmatchedMessage($key)
   {
-    $this->errorMessages[$key][] = $this->lists[$key]."が最大文字数を".$diff."文字超えています。";
+    $value = $this->transIntoJapanese($key);
+    $this->errorMessages[$key][] = $value."が間違っています。";
   }
 
-  protected function setMinValueMessage($key,$minNumber)
+  private function setMaxOverMessage($key,$diff)
   {
-    $this->errorMessages[$key][] = $this->lists[$key]."が最低文字数、".$minNumber."文字を満たしていません。";
+    $value = $this->transIntoJapanese($key);
+    $this->errorMessages[$key][] = $value."が最大文字数を".$diff."文字超えています。";
   }
+
+  private function setMinValueMessage($key,$minNumber)
+  {
+    $value = $this->transIntoJapanese($key);
+    $this->errorMessages[$key][] = $value."が最低文字数、".$minNumber."文字を満たしていません。";
+  }
+
+
 }

@@ -3,16 +3,20 @@
 
 namespace app\core;
 
+use app\exception\Handler;
 use app\middlewares\AuthMiddleware;
 
 class Router
 {
+  private $handler;
   public $request;
   public $response;
   public $routes;
   
   public function __construct($request,$response)
   {
+    //エラーインスタンスの格納
+    $this->handler = new Handler;
     //Requestインスタンスを格納
     $this->request = $request;
     //Responseインスタンスを格納
@@ -20,17 +24,36 @@ class Router
     
   }
 
-  //GETメソッドに対応するコールバック関数
+  /**
+   * GETメソッドに対応する関数の格納
+   *
+   * @param string $path
+   * @param string $callback
+   */
+
   public function get($path,$callback)
   {
     $this->routes['get'][$path] = $callback;
   }
 
-  //POSTメソッドに対応するコールバック関数
+  /**
+   * POSTメソッドに対応する関数の格納
+   *
+   * @param string $path
+   * @param string $callback
+   */
+
   public function post($path,$callback)
   {
     $this->routes['post'][$path] = $callback;
   }
+
+  /**
+   * ルートに対応する関数を返す
+   * ログイン状態のチェックやコントローラに対応するモデルの取得を行う
+   *
+   * @return callable
+   */
 
   public function resolve()
   {
@@ -52,14 +75,14 @@ class Router
     //存在しないリクエスト
     if($callback === false){
       $this->response->setStatusCode(404);
-      die('Not Found');
+      $this->handler->output("お探しのページは見つかりません");
     }
     
     //第一引数にクラス、第二引数にメソッド
     if(is_array($callback)){
       //ミドルウェアの適用
-      $middleware = new AuthMiddleware;
-      $middleware->guard($callback[0]);
+      $authMiddleware = new AuthMiddleware;
+      $authMiddleware->guard($callback[0]);
       //インスタンス化
       Application::$app->controller = new $callback[0]();
       //モデルのセット
@@ -75,8 +98,15 @@ class Router
     return call_user_func($callback,$this->request);
   }
 
-  //コントローラのデフォルトのモデルクラスを取得する
-  //「UserController」の場合「User」モデルとなる
+  
+  /**
+   * コントローラのデフォルトのモデルクラスを取得する
+   *「UserController」の場合「User」モデルとなる
+   *
+   * @param string $controller
+   * @return class
+   */
+
   public function getModelClass($controller)
   {
     $controllerNamespace = "app\\controllers\\";
@@ -91,8 +121,20 @@ class Router
   }
 
 
+  /**
+   * ルートのパラメータ(数字)の取得
+   *
+   * @param string $path
+   * @return string
+   */
+
   private function getParams($path)
   {
+    //改行処理
+    $path = str_replace(PHP_EOL,"",$path);
+    //特殊文字の処理
+    $path = htmlspecialchars($path,ENT_QUOTES,'UTF-8');
+
     $explode = explode('/',$path);
     $param = false;
 

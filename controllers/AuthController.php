@@ -8,20 +8,35 @@ use app\core\Validation;
 class AuthController extends Controller
 {
 
-  //ログイン画面の表示
+  /**
+   * ログイン画面の表示
+   *
+   * @return string
+   */
+
   public function index()
   {
     return $this->view('auth/login');
   }
 
-  //新規登録画面の表示
+  /**
+   * アカウント登録画面の表示
+   *
+   * @return string
+   */
+
   public function register()
   { 
     return $this->view('auth/register'); 
   }
 
 
-  //ユーザーの新規登録処理
+  /**
+   * ユーザの新規登録
+   *
+   * @param object $request
+   */
+
   public function store($request)
   {
     $data = $request->postData;
@@ -64,19 +79,22 @@ class AuthController extends Controller
         $request->session->setFlashMessage('success','新規登録が完了しました。ログインしてください。');
         //完了画面へリダイレクト
         redirect('login');
-      }else{
-        die('しばらく時間を空けてから再度お試しください');
       }
       
     }
   }
 
-  //ログイン
+  /**
+   * ログイン処理
+   *
+   * @param object $request
+   */
+
   public function login($request)
   {
 
     $data = $request->postData;
-
+    
     //バリデーションルール
     $rules = [
       'email' => [
@@ -104,13 +122,18 @@ class AuthController extends Controller
       //ユーザの取得
       $user = $this->model->findUser($data['email']);
       //ログイン成功
-      $request->session->setLoginUserId($user['id']);
+      $request->session->setLoginUser($user['id']);
       //ユーザのホームページにリダイレクト
       redirect('home');
     }
   }
 
-
+  /**
+   * ログアウト処理
+   *
+   * @param object $request
+   */
+  
   public function logout($request)
   {
     if($request->postData['logout'] === 'logout'){

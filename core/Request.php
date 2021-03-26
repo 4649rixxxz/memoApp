@@ -10,7 +10,6 @@ class Request
 
   public $postData;
   public $session;
-  public $user;
 
   public function __construct()
   {
@@ -18,16 +17,23 @@ class Request
     $this->session = new Session();
     //Postメソッドの場合
     if($this->isPost()){
+       //再発行
+      session_regenerate_id();
       //エスケープ処理
       $this->postData = $this->getEscapedData($_POST);
-      // Session::start($this->postData,$this->getHttpMethod());
-      $this->postData = $this->session->post($this->postData);
+      //ワンタイムトークンを用いて正常なリクエストかどうかを確認
+      $this->postData = $this->session->isValidRequest($this->postData);
+      //セッションに値を格納
+      $this->session->set($this->postData);
     }
-    //ログインユーザオブジェクトの格納
-    if(isset($_SESSION['user_id'])){
-      $this->user = $this->getLoginUserModel();
-    }
+
   }
+
+  /**
+   * 定数APPROOT(/memoApp)以下のパスを取得
+   *
+   * @return string
+   */
 
   public function getPath()
   {
@@ -37,22 +43,45 @@ class Request
     return $path;
   }
 
+  /**
+   * Httpメソッドを取得し、小文字に変換
+   * GETの場合、get
+   *
+   * @return void
+   */
   public function getHttpMethod()
   {
     return strtolower($_SERVER['REQUEST_METHOD']);
   }
+
+  /**
+   * GETメソッドであるかどうか
+   *
+   * @return boolean
+   */
 
   public function isGet()
   {
     return $this->getHttpMethod() === 'get';
   }
 
+  /**
+   * POSTメソッドであるかどうか
+   *
+   * @return boolean
+   */
+
   public function isPost()
   {
     return $this->getHttpMethod() === 'post';
   }
 
-  //postデータのサニタイズ
+  /**
+   * POSTで送信されたデータのサニタイズ
+   *
+   * @param array $array
+   * @return array
+   */
   public function getEscapedData($array)
   {
     $data = [];
@@ -68,16 +97,18 @@ class Request
     return $data;
   }
 
-  /* 
-
-    @return User Object
-
-  */
-  public function getLoginUserModel()
+  /**
+   * ログインユーザーのアカウント情報を取得
+   *
+   * @return object
+   */
+  public function auth()
   {
-    $user = new User;
-    return $user->getUserData($_SESSION['user_id']);
-
+    //ログインユーザオブジェクトの格納
+    if(isset($_SESSION['user_id'])){
+      $user = new User;
+      return $user->getUserData($_SESSION['user_id']);
+    }
   }
 
 }

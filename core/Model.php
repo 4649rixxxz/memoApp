@@ -2,6 +2,7 @@
 
 namespace app\core;
 
+use app\exception\Handler;
 
 class Model
 {
@@ -13,31 +14,50 @@ class Model
   private $dbh;
   private $stmt;
 
+  protected $handler;
+  protected $today;
+
   public function __construct()
   {
-    //set dsn
     $dsn = 'mysql:host='.$this->host.';dbname='.$this->dbname.'; charset=utf8';
     $options = array(
-      \PDO::ATTR_PERSISTENT => true,
-      \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+      \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
     );
 
-    //create \PDO instance
+    //エラーインスタンスの生成
+    $this->handler = new Handler;
+    //更新日に今日の日付を格納
+    $this->today = date("Y-m-d");
+    
     try{
 
       $this->dbh = new \PDO($dsn,$this->user,$this->pass,$options);
+      
     }catch(\PDOException $e){
-      die('しばらくしてからもう一度お試しください');
+      $this->handler->output($e->getMessage());
     }
 
   }
-  //Prepare statement with query
+  
+  /**
+   * prepareメソッドの実行
+   *
+   * @param string $sql
+   */
+
   public function prepare($sql)
   {
     $this->stmt = $this->dbh->prepare($sql);
   }
 
-  // Binding param
+  /**
+   * bindValueメソッドの実行
+   *
+   * @param string $param
+   * @param string|int $value
+   * @param string $type
+   */
+
   public function bind($param,$value,$type = null)
   {
     if(is_null($type)){
@@ -59,31 +79,82 @@ class Model
     $this->stmt->bindValue($param,$value,$type);
   }
 
+  /**
+   * executeメソッドの実行
+   *
+   * @return boolean
+   */
 
   public function execute()
   {
-    return $this->stmt->execute();
+    if($this->stmt->execute()){
+      return true;
+    }else{
+      return false;
+    }
+
   }
+
+  /**
+   * queryメソッドの実行
+   *
+   * @return boolean
+   */
 
   public function query($sql)
   {
     $this->stmt = $this->dbh->query($sql);
+
+    if($this->stmt !== false){
+      return true;
+    }else{
+      $this->handler->output("しばらくしてからもう一度お試しください");
+    }
+
   }
 
-  public function fetch($mode = \PDO::FETCH_BOTH)
+  /**
+   * fetchメソッドの実行
+   *
+   * @return array
+   */
+
+  public function fetch($mode = "")
   {
     $result = $this->stmt->fetch($mode);
 
-    return $result;
+    if($result !== false){
+      return $result;
+    }else{
+      $this->handler->output("不正なリクエスト");
+    }
   }
 
-  public function fetchAll($mode = \PDO::FETCH_BOTH)
+  /**
+   * fetchAllメソッドの実行
+   *
+   * @return array
+   */
+
+  public function fetchAll()
   {
-    $result = $this->stmt->fetchAll($mode);
-
-    return $result;
+    $result = $this->stmt->fetchAll();
+    
+    if($result !== false){
+      return $result;
+    }else{
+      $this->handler->output("しばらくしてからもう一度お試しください");
+    }
   }
 
+  /**
+   * テーブル内の唯一のレコードを抽出する
+   *
+   * @param string $table
+   * @param string $column
+   * @param string $value
+   * @return boolean
+   */
 
   public function isUniqueValue($table,$column,$value)
   {
@@ -94,7 +165,7 @@ class Model
 
     if($this->execute()){
 
-      $result = $this->fetch(\PDO::FETCH_ASSOC);
+      $result = $this->fetch();
 
       if($result !== false){
         //レコードがある場合
@@ -103,13 +174,17 @@ class Model
         //レコードがない場合
         return true;
       }
-    }else{
-      return false;
     }
-
-   
   }
 
+  /**
+   * Undocumented function
+   *
+   * @param array $info
+   * @param string $currentValue
+   * @param string $updateValue
+   * @return boolean
+   */
 
   public function isUpdateUniqueValue($info,$currentValue,$updateValue)
   {
@@ -118,9 +193,13 @@ class Model
       return true;
     }
 
-    if(!isset($updateValue) && $currentValue !== $updateValue){
+    //現在の値と更新後の値が異なる場合
+    if(!empty($updateValue) && $currentValue !== $updateValue){
+      //更新後の値は唯一の値であるかどうか
       return $this->isUniqueValue($info[0],$info[1],$updateValue);
     }
+
+    return false;
     
   }
 
