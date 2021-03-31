@@ -34,7 +34,7 @@ class Model
       $this->dbh = new \PDO($dsn,$this->user,$this->pass,$options);
       
     }catch(\PDOException $e){
-      $this->handler->output($e->getMessage());
+      $this->handler->output("しばらくしてからもう一度お試しください");
     }
 
   }
@@ -45,7 +45,7 @@ class Model
    * @param string $sql
    */
 
-  public function prepare($sql)
+  protected function prepare($sql)
   {
     $this->stmt = $this->dbh->prepare($sql);
   }
@@ -58,7 +58,7 @@ class Model
    * @param string $type
    */
 
-  public function bind($param,$value,$type = null)
+  protected function bind($param,$value,$type = null)
   {
     if(is_null($type)){
       switch(true){
@@ -85,12 +85,12 @@ class Model
    * @return boolean
    */
 
-  public function execute()
+  protected function execute()
   {
     if($this->stmt->execute()){
       return true;
     }else{
-      return false;
+      $this->handler->output("しばらくしてからもう一度お試しください");
     }
 
   }
@@ -101,7 +101,7 @@ class Model
    * @return boolean
    */
 
-  public function query($sql)
+  protected function query($sql)
   {
     $this->stmt = $this->dbh->query($sql);
 
@@ -119,15 +119,9 @@ class Model
    * @return array
    */
 
-  public function fetch($mode = "")
+  protected function fetch($mode = \PDO::FETCH_ASSOC)
   {
-    $result = $this->stmt->fetch($mode);
-
-    if($result !== false){
-      return $result;
-    }else{
-      $this->handler->output("不正なリクエスト");
-    }
+    return $this->stmt->fetch($mode);
   }
 
   /**
@@ -136,15 +130,9 @@ class Model
    * @return array
    */
 
-  public function fetchAll()
+  protected function fetchAll()
   {
-    $result = $this->stmt->fetchAll();
-    
-    if($result !== false){
-      return $result;
-    }else{
-      $this->handler->output("しばらくしてからもう一度お試しください");
-    }
+    return $this->stmt->fetchAll();    
   }
 
   /**
@@ -202,6 +190,5 @@ class Model
     return false;
     
   }
-
   
 }

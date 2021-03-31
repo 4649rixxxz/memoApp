@@ -17,9 +17,8 @@ class CategoryController extends Controller
   public function index($request)
   {
     $user = $request->auth();
-    $categories = $this->model->getAllCategories($user->id);
-
-  
+    $categories = $this->model->get($user->id);
+      
     return $this->view('users/home',[
       'user' => $user,
       'categories' => $categories
@@ -94,7 +93,7 @@ class CategoryController extends Controller
     $param = $request->id;
 
 
-    $data = $this->model->getCategory($user->id,$param);
+    $data = $this->model->find($user->id,$param);
 
     return $this->view('categories/show',[
       'data' => $data

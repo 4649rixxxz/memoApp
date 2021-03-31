@@ -34,7 +34,7 @@ class Category extends Model
    * @return array
    */
 
-  public function getAllCategories($user_id)
+  public function get($user_id)
   {
     $sql = "SELECT * FROM categories WHERE user_id = {$user_id}";
 
@@ -59,7 +59,7 @@ class Category extends Model
    */
 
 
-  public function getCategory($user_id,$id)
+  public function find($user_id,$id)
   {
     $sql = "SELECT * FROM categories WHERE user_id = {$user_id} AND id = :id";
 
@@ -73,7 +73,7 @@ class Category extends Model
     $data = $this->fetch(\PDO::FETCH_ASSOC);
 
     if($data === false){
-      $this->handler->output("不正なリクエスト");
+      $this->handler->output("不正なリクエストです");
     }
     
     return $data;
@@ -92,7 +92,7 @@ class Category extends Model
   public function update($user_id,$id,$data)
   {
     //該当レコードが存在するか
-    if($this->getCategory($user_id,$id)){
+    if($this->find($user_id,$id)){
       $sql = "UPDATE categories SET name = :name,updated_at = :updated_at WHERE user_id = {$user_id} AND id = :id";
   
       $this->prepare($sql);
@@ -115,8 +115,7 @@ class Category extends Model
   
   public function delete($user_id,$id)
   {
-    //該当レコードが存在するか
-    if($this->getCategory($user_id,$id)){
+    if($this->find($user_id,$id)){
       $sql = "DELETE FROM categories WHERE user_id = {$user_id} AND id = :id";
 
       $this->prepare($sql);
