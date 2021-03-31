@@ -102,6 +102,7 @@ class Request
    *
    * @return object
    */
+  
   public function auth()
   {
     //ログインユーザオブジェクトの格納

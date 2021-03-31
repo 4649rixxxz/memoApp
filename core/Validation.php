@@ -3,20 +3,24 @@
 namespace app\core;
 
 use app\core\Model;
+use app\exception\Handler;
 
 class Validation
 {
   private $model;
+  private $handler;
   private $data;
   private $rules;
   private $lists = ATTR_JA;
   private $errorMessages = [];
 
+
   public function __construct($data,$rules)
   {
+    $this->model = new Model;
+    $this->handler = new Handler;
     $this->data = $data;
     $this->rules = $rules;
-    $this->model = new Model;
   }
 
   public function validate()
@@ -59,6 +63,7 @@ class Validation
           if(is_array($rule) && array_key_exists('unique',$rule)){
             //テーブル名とカラム名の取得
             $info = explode(":",$rule['unique'][0]);
+
             //テーブル名
             $table = $info[0];
             //カラム名
@@ -100,7 +105,7 @@ class Validation
              }
           }
           //最大値
-          if(preg_match('/^max:[1-9][0-9]*/',$rule)){
+          if(is_string($rule) && preg_match('/^max:[1-9][0-9]*/',$rule)){
             $rule = str_replace('max:','',$rule);
             //文字列から数値へ型変換
             $maxNumber = intval($rule);
@@ -115,7 +120,7 @@ class Validation
             }
           }
           //最小値
-          if(preg_match('/^min:[1-9][0-9]*/',$rule)){
+          if(is_string($rule) && preg_match('/^min:[1-9][0-9]*/',$rule)){
             $rule = str_replace('min:','',$rule);
             //文字列から数値へ型変換
             $minNumber = intval($rule);
@@ -128,7 +133,7 @@ class Validation
         }
       }else{
         //意図していない値が送られてきた時
-        die('不正なリクエスト');
+        $this->handler->output("不正なリクエストです");
       }
     }
   }
@@ -143,7 +148,7 @@ class Validation
   public function isError()
   {
     $errors = $this->getErrorMessages();
-
+    
     if(count($errors) > 0){
       return true;
     }else{

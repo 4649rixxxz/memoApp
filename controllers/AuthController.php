@@ -62,6 +62,7 @@ class AuthController extends Controller
     //バリデーション
     $validation->validate();
 
+    
     //エラーがあるかどうか
     if($validation->isError()){
       //エラー処理

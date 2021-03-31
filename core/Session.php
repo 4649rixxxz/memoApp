@@ -140,6 +140,13 @@ class Session
     $_SESSION['user_id'] = $id;
   }
 
+
+  /**
+   * 特定のセッション値の削除
+   *
+   * @param array $keyArray
+   */
+
   public static function unsetValue($keyArray)
   {
     foreach($keyArray as $key => $value){

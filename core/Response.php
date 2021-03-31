@@ -5,8 +5,6 @@ namespace app\core;
 
 class Response
 {
-  public $test = 'test';
-
   /**
    * httpステータスの格納
    *

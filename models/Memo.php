@@ -7,30 +7,32 @@ use app\core\Model;
 class Memo extends Model
 {
   /**
-   * メモが持つカテゴリーの外部キーが存在するか
+   * メモが持つカテゴリが存在するか、すなわち不正なパラメータによるリクエストではないかを検証
    *
    * @param string $category_id
    * @param string $user_id
    * @return boolean
    */
 
-  private function isForeignRecordExist($category_id,$user_id)
+  public function findCategory($category_id,$user_id)
   {
     $sql = "SELECT * FROM categories WHERE id = :id AND user_id = {$user_id}";
 
     $this->prepare($sql);
     $this->bind(':id',$category_id,\PDO::PARAM_INT);
 
-    $this->execute();
+    if($this->execute()){
 
-    $data = $this->fetch(\PDO::FETCH_ASSOC);
-
-    if($data === false){
-       //パラメータが不正な場合
-       $this->handler->output("不正なリクエスト");
+      $data = $this->fetch(\PDO::FETCH_ASSOC);
+  
+      if($data === false){
+         //パラメータが不正な場合
+         $this->handler->output("不正なリクエスト");
+      }
+  
+      return $data;
     }
 
-    return true;
   }
 
 
@@ -45,7 +47,7 @@ class Memo extends Model
 
   public function insert($user_id,$category_id,$data)
   {
-    if($this->isForeignRecordExist($category_id,$user_id)){
+    if($this->findCategory($category_id,$user_id)){
 
       $sql = "INSERT INTO memos (user_id,category_id,heading,content) VALUES ({$user_id},:category_id,:heading,:content)";
   
@@ -67,10 +69,10 @@ class Memo extends Model
    * @return array
    */
 
-  public function getAll($user_id,$category_id)
+  public function get($category_id,$user_id)
   {
 
-    if($this->isForeignRecordExist($category_id,$user_id)){
+    if($this->findCategory($category_id,$user_id)){
 
       $sql = "SELECT * FROM memos WHERE user_id = {$user_id} AND category_id = :category_id";
   
@@ -82,7 +84,7 @@ class Memo extends Model
       $data = $this->fetchAll(\PDO::FETCH_ASSOC);
   
       if($data === false){
-        return [];
+        $this->handler->output("しばらくしてからもう一度お試しください");
       }
       
       return $data;
@@ -99,7 +101,7 @@ class Memo extends Model
    * @return array
    */
 
-  public function findOne($memo_id,$user_id)
+  public function find($memo_id,$user_id)
   {
     $sql = "SELECT * FROM memos WHERE id = :id AND user_id = {$user_id}";
 
@@ -140,34 +142,6 @@ class Memo extends Model
     return $this->execute();
   }
 
-
-  /**
-   * 特定のメモが持つカテゴリの取得
-   *
-   * @param string $memo_id
-   * @param string $user_id
-   */
-
-  public function getCategory($memo_id,$user_id)
-  {
-    $sql = "SELECT category_id FROM memos WHERE id = :id AND user_id = {$user_id}";
-
-    $this->prepare($sql);
-    $this->bind(':id',$memo_id,\PDO::PARAM_INT);
-
-    if($this->execute()){
-
-      $result = $this->fetch(\PDO::FETCH_COLUMN);
-  
-      if($result === false){
-        //不正なパラメータの場合
-        $this->handler->output("不正なリクエスト");
-      }
-      
-      return $result;
-    }
-  }
-
   /**
    * 特定のメモの削除
    *
@@ -178,14 +152,13 @@ class Memo extends Model
 
   public function delete($memo_id,$user_id)
   {
-    if($this->getCategory($memo_id,$user_id)){
-      $sql = "DELETE FROM memos WHERE id = :id AND user_id = {$user_id}";
-  
-      $this->prepare($sql);
-      $this->bind(':id',$memo_id);
-  
-      return $this->execute();
-    }
+    $sql = "DELETE FROM memos WHERE id = :id AND user_id = {$user_id}";
+
+    $this->prepare($sql);
+    $this->bind(':id',$memo_id);
+
+    return $this->execute();
+    
   }
 
 }

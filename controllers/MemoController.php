@@ -4,7 +4,6 @@ namespace app\controllers;
 
 use app\core\Controller;
 use app\core\Validation;
-use app\models\Category;
 
 class MemoController extends Controller
 {
@@ -22,10 +21,9 @@ class MemoController extends Controller
     //ログインユーザの取得
     $user = $request->auth();
     //カテゴリー名を取得
-    $category = new Category;
-    $category_name = $category->getCategory($user->id,$category_id)["name"];
+    $category_name = $this->model->findCategory($category_id,$user->id)["name"];
     //すべてのメモを取得
-    $memos = $this->model->getAll($user->id,$category_id);
+    $memos = $this->model->get($category_id,$user->id);
 
     return $this->view('memos/index',[
       'id' => $category_id,
@@ -43,7 +41,8 @@ class MemoController extends Controller
 
   public function create($request)
   {
-    $category_id = $request->category_id;
+    $user = $request->auth();
+    $category_id = $this->model->findCategory($request->category_id,$user->id)["id"];
     return $this->view('memos/create',[
       'id' => $category_id
     ]);
@@ -61,7 +60,7 @@ class MemoController extends Controller
     //ログインユーザの取得
     $user = $request->auth();
     //カテゴリーのid
-    $category_id = $request->category_id;
+    $category_id = $this->model->findCategory($request->category_id,$user->id)["id"];
 
     //バリデーションルール
     $rules = [
@@ -72,7 +71,7 @@ class MemoController extends Controller
       'content' => [
         'required',
         'max:200',
-     ],
+      ],
     ];
     
     //インスタンス化
@@ -109,7 +108,7 @@ class MemoController extends Controller
     $user = $request->auth();
     $memo_id = $request->id;
 
-    $memo = $this->model->findOne($memo_id,$user->id);
+    $memo = $this->model->find($memo_id,$user->id);
 
     return $this->view('memos/show',[
       'memo' => $memo
@@ -128,8 +127,8 @@ class MemoController extends Controller
     $data = $request->postData;
     //ログインユーザの取得
     $user = $request->auth();
-    //カテゴリーのid
-    $memo_id = $request->id;
+    //メモの取得
+    $memo = $this->model->find($request->id,$user->id);
 
     //バリデーションルール
     $rules = [
@@ -155,13 +154,13 @@ class MemoController extends Controller
       //エラーメッセージの取得
       $_SESSION['errorMessages'] = $validation->getErrorMessages();
       //リダイレクト
-      redirect("memo/{$memo_id}/show");
+      redirect("memo/{$memo['id']}/show");
 
     }else{
       //メモのカテゴリーを取得
-      $category_id = $this->model->getCategory($memo_id,$user->id);
+      $category_id = $this->model->findCategory($memo['category_id'],$user->id)["id"];
 
-      if($this->model->update($memo_id,$user->id,$data)){
+      if($this->model->update($memo['id'],$user->id,$data)){
       
         redirect("memo/category/{$category_id}/index");
       }
@@ -178,12 +177,12 @@ class MemoController extends Controller
   public function delete($request)
   {
     $user = $request->auth();
-    $memo_id = $request->id;
-
-    //メモのカテゴリーを取得
-    $category_id = $this->model->getCategory($memo_id,$user->id);
+    //メモの取得
+    $memo = $this->model->find($request->id,$user->id);
     
-    if($this->model->delete($memo_id,$user->id)){
+    if($this->model->delete($memo['id'],$user->id)){
+      //メモのカテゴリーを取得
+      $category_id = $this->model->findCategory($memo['category_id'],$user->id)["id"];
       redirect("memo/category/{$category_id}/index");
     }
       
